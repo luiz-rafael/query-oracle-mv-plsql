@@ -1,3 +1,6 @@
+# .sql file
+
+
 select avi_cir.cd_aviso_cirurgia          cd_aviso_cirurgia
       ,avi_cir.cd_atendimento             cd_atendimento
       ,avi_cir.cd_paciente                cd_paciente

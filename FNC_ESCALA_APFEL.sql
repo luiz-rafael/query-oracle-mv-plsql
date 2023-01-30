@@ -1,3 +1,6 @@
+# .sql file
+
+
 CREATE OR REPLACE FUNCTION FNC_ESCALA_APFEL(pATEND INTEGER)
 RETURN VARCHAR2 IS
 
@@ -5,7 +8,7 @@ RETURN VARCHAR2 IS
 
 BEGIN
     WITH text AS (SELECT  ROW_NUMBER() OVER(ORDER BY dh_avaliacao desc) AS Linha,
-                                  'Data da avaliação: '||to_char(pagu_avaliacao.dh_avaliacao,
+                                  'Data da avaliaï¿½ï¿½o: '||to_char(pagu_avaliacao.dh_avaliacao,
                                     'DD/MM/YY HH24:mi:ss')
                                   ||' - Resultado: '||pagu_avaliacao.vl_resultado||' - '
                                   ||PAGU_FORMULA_INTERPRETACAO.ds_interpretacao
@@ -33,12 +36,12 @@ BEGIN
   RETURN ESCALA_APFEL;
 END;
 
-----ESCALA DE BRADEN DS E ULTIMO RESULTADO (trocar o código de acordo com o cadastro na tabela)
+----ESCALA DE BRADEN DS E ULTIMO RESULTADO (trocar o cï¿½digo de acordo com o cadastro na tabela)
 
 --WITH text AS (
 
 --   SELECT  ROW_NUMBER() OVER(ORDER BY dh_avaliacao desc) AS Linha,
---                'Data da avaliação: '||to_char(pagu_avaliacao.dh_avaliacao,
+--                'Data da avaliaï¿½ï¿½o: '||to_char(pagu_avaliacao.dh_avaliacao,
 --                  'DD/MM/YY HH24:mi:ss')
 --                ||' - Resultado: '||pagu_avaliacao.vl_resultado||' - '
 --                ||PAGU_FORMULA_INTERPRETACAO.ds_interpretacao

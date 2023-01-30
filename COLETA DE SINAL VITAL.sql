@@ -1,3 +1,5 @@
+# .sql file
+
 SELECT  documento
        ,nm_prestador
        ,nm_tip_presta
