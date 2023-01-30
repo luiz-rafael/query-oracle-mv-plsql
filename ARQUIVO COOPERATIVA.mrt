@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbK3KE9xop3bKGgA+kSzCo04aaPLA1EBRW2hROpps5OLePfrZ0sx7HJJFfTOGLkP3u5PpVZ88+zHKMjcym2gu9SyQ8vkd5G88yjlGE34bUL1MJGl2F3CjH8AtRhk3Kw/5FzRKdUFy9ltRGj404Alu/k4aeJld7MZ6gGEgOV0rHewsneNXXbDCWsGZURyPSSv2hITzcprIl1/Z2lc9ADic7Du9+vUa6J1b2zl3GL0oKrSNMFv1n3zSHkozIB0/OC7+Hj/691q0qTbbNC962ltboE6actNaHrBR1ihgEc98w==</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="3" isList="true"><CONSULTA_PRINCIPAL Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>CONSULTA_PRINCIPAL</Alias><Columns count="23" isList="true"><value>ATIVIDADE_MEDICA,System.String</value><value>CODIGO_HONORARIO,System.String</value><value>COD_ACOMODACAO,System.String</value><value>COD_CONVENIO,System.String</value><value>CRM_MEDICO,System.String</value><value>DESCRICAO_HONORARIO,System.String</value><value>DESC_ACOMODACAO,System.String</value><value>DT_ALTA_MEDICA,System.String</value><value>DT_ATENDIMENTO,System.String</value><value>DT_LANCAMENTO,System.String</value><value>GRAU_PARTICIPACAO,System.String</value><value>HR_ALTA_MEDICA,System.String</value><value>HR_ATENDIMENTO,System.String</value><value>HR_LANCAMENTO,System.String</value><value>NM_CONVENIO,System.String</value><value>NOME_PACIENTE,System.String</value><value>NUMERO_CARTEIRA,System.String</value><value>NUMERO_GUIA,System.String</value><value>NUM_ATENDIMENTO,System.String</value><value>NUM_CONTA,System.String</value><value>PERCENTUAL,System.Double</value><value>QUANTIDADE,System.Double</value><value>SENHA_AUTORIZACAO,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>CONSULTA_PRINCIPAL</Name><NameInSource>database</NameInSource><Parameters count="2" isList="true"><value>P_FIM,PERIODO_x002e_To,4,0</value><value>P_INICIO,PERIODO_x002e_From,4,0</value></Parameters><SqlCommand>   
+  SELECT
+     TO_CHAR(V.NUM_ATENDIMENTO)                                          AS NUM_ATENDIMENTO,
+     CASE
+        WHEN V.COD_ACOMODACAO IN (11,4) THEN TO_CHAR(V.NUM_ATENDIMENTO)
+        ELSE TO_CHAR(V.NUM_CONTA) 
+     END                                                                 AS NUM_CONTA,
+     V.NOME_PACIENTE,
+     TO_CHAR(V.NUMERO_CARTEIRA)                                          AS NUMERO_CARTEIRA,
+     TO_CHAR(V.NUMERO_GUIA)                                              AS NUMERO_GUIA,
+     TO_CHAR(V.COD_ACOMODACAO)                                           AS COD_ACOMODACAO,
+     V.DESC_ACOMODACAO,
+     V.CODIGO_HONORARIO,
+     V.DESCRICAO_HONORARIO,
+     V.QUANTIDADE,
+     V.DT_ATENDIMENTO,
+     V.HR_ATENDIMENTO,
+     V.DT_ALTA_MEDICA,
+     V.HR_ALTA_MEDICA,
+     TO_CHAR(V.NUMERO_SENHA)                                             AS SENHA_AUTORIZACAO,
+     TO_CHAR(V.COD_CONVENIO)                                             AS COD_CONVENIO,
+     V.NM_CONVENIO,
+     V.NM_CONVENIO,
+     TO_CHAR(V.CRM_MEDICO_PROCEDIMENTO)                                  AS CRM_MEDICO,
+     TO_CHAR(V.GRAU_PARTICIPACAO)                                        AS GRAU_PARTICIPACAO,
+     V.ATIVIDADE_MEDICA,
+     V.DT_LANCAMENTO,
+     V.HR_LANCAMENTO,
+     V.PERCENTUAl     
+  FROM (
+    SELECT      
+      
+      ATD.CD_ATENDIMENTO        AS NUM_ATENDIMENTO,
+      CON.CD_REG_FAT            AS NUM_CONTA,
+      PAC.NM_PACIENTE           AS NOME_PACIENTE,
+      TO_CHAR(ATD.NR_CARTEIRA)  AS NUMERO_CARTEIRA,           
+      CASE
+         WHEN ATD.TP_ATENDIMENTO IN ('U','A','E') THEN (SELECT GUIA.NR_GUIA FROM GUIA 
+                                                  WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                  AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                      WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'C'))
+         WHEN ATD.TP_ATENDIMENTO IN ('I') THEN (SELECT GUIA.NR_GUIA FROM GUIA 
+                                              WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                              AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                  WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'I'))                                           
+      END AS NUMERO_GUIA,
+      CASE 
+        WHEN IT.CD_SETOR = 3 THEN 53
+        WHEN IT.CD_SETOR NOT IN (3,17,2) THEN NVL((SELECT AC.CD_TIP_ACOM FROM MOV_INT A     
+                                         INNER JOIN LEITO LEI   ON LEI.CD_LEITO = A.CD_LEITO
+                                         INNER JOIN TIP_ACOM AC ON AC.CD_TIP_ACOM = LEI.CD_TIP_ACOM
+                                         INNER JOIN UNID_INT UI ON UI.CD_UNID_INT = LEI.CD_UNID_INT
+                                         INNER JOIN SETOR SER   ON SER.CD_SETOR = UI.CD_SETOR              
+                                         WHERE IT.CD_SETOR = SER.CD_SETOR AND A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND ROWNUM = 1),
+                                            (SELECT CASE 
+                                               WHEN AD.CD_TIP_ACOM = 19 THEN 50
+                                               WHEN AD.CD_TIP_ACOM = 18 THEN 52
+                                               ELSE AD.CD_TIP_ACOM   
+                                             END FROM ATENDIME AD
+                                             INNER JOIN TIP_ACOM AE ON AE.CD_TIP_ACOM = AD.CD_TIP_ACOM
+                                             WHERE AD.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO))              
+        ELSE (SELECT 
+                   CASE 
+                     WHEN AD.CD_TIP_ACOM = 19 THEN 50
+                     WHEN AD.CD_TIP_ACOM = 18 THEN 52
+                     ELSE AD.CD_TIP_ACOM   
+                   END FROM ATENDIME AD
+              INNER JOIN TIP_ACOM AE ON AE.CD_TIP_ACOM = AD.CD_TIP_ACOM
+              WHERE AD.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO)
+      END AS COD_ACOMODACAO,      
+      CASE 
+        WHEN IT.CD_SETOR = 3 THEN 'CTI'
+        WHEN IT.CD_SETOR NOT IN (3,17,2) THEN NVL((SELECT 
+                                            CASE          
+                                              WHEN AC.CD_TIP_ACOM = 6  THEN 'APARTAMENTO'
+                                              WHEN AC.CD_TIP_ACOM = 50 THEN 'ENFERMARIA'
+                                              WHEN AC.CD_TIP_ACOM = 52 THEN 'APARTAMENTO'
+                                              WHEN AC.CD_TIP_ACOM = 19 THEN 'ENFERMARIA'
+                                              WHEN AC.CD_TIP_ACOM = 18 THEN 'APARTAMENTO'                                
+                                            END  
+                                          FROM MOV_INT A     
+                                          INNER JOIN LEITO LEI   ON LEI.CD_LEITO = A.CD_LEITO
+                                          INNER JOIN TIP_ACOM AC ON AC.CD_TIP_ACOM = LEI.CD_TIP_ACOM
+                                          INNER JOIN UNID_INT UI ON UI.CD_UNID_INT = LEI.CD_UNID_INT
+                                          INNER JOIN SETOR SER   ON SER.CD_SETOR = UI.CD_SETOR              
+                                          WHERE IT.CD_SETOR = SER.CD_SETOR AND A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND ROWNUM = 1),
+                                              (SELECT
+                                                 CASE       
+                                                    WHEN AD.CD_TIP_ACOM = 6  THEN 'APARTAMENTO'
+                                                    WHEN AD.CD_TIP_ACOM = 50 THEN 'ENFERMARIA'
+                                                    WHEN AD.CD_TIP_ACOM = 52 THEN 'APARTAMENTO'
+                                                    WHEN AD.CD_TIP_ACOM = 53 THEN 'CTI'
+                                                    END
+                                                FROM ATENDIME AD
+                                                INNER JOIN TIP_ACOM AE ON AE.CD_TIP_ACOM = AD.CD_TIP_ACOM
+                                                WHERE AD.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO))               
+        ELSE (SELECT
+               CASE       
+                  WHEN AD.CD_TIP_ACOM = 6  THEN 'APARTAMENTO'
+                  WHEN AD.CD_TIP_ACOM = 50 THEN 'ENFERMARIA'
+                  WHEN AD.CD_TIP_ACOM = 52 THEN 'APARTAMENTO'
+                  WHEN AD.CD_TIP_ACOM = 53 THEN 'CTI'
+                  WHEN AD.CD_TIP_ACOM = 19 THEN 'ENFERMARIA'
+                  WHEN AD.CD_TIP_ACOM = 18 THEN 'APARTAMENTO'  
+                  ELSE AE.DS_TIP_ACOM
+                  END
+              FROM ATENDIME AD
+              INNER JOIN TIP_ACOM AE ON AE.CD_TIP_ACOM = AD.CD_TIP_ACOM
+              WHERE AD.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO) 
+      END AS DESC_ACOMODACAO,   
+      CASE
+    WHEN OPE.CD_CONVENIO = 47 THEN
+            (SELECT To_Char(CP.DS_CODIGO_COBRANCA)  FROM COD_PRO CP
+              WHERE CP.CD_PRO_FAT = IT.CD_PRO_FAT AND OPE.CD_CONVENIO = 47 )
+        ELSE TO_CHAR(IT.CD_PRO_FAT)
+      END                   AS CODIGO_HONORARIO,
+      PRO.DS_PRO_FAT        AS DESCRICAO_HONORARIO, 
+      SUM(IT.QT_LANCAMENTO) AS QUANTIDADE,      
+      COALESCE(TO_CHAR(CON.DT_INICIO,'DD/MM/YYYY'),'-') AS DT_ATENDIMENTO,
+      COALESCE(TO_CHAR(CON.DT_INICIO,'HH24:MI'),'-')    AS HR_ATENDIMENTO,
+      COALESCE(TO_CHAR(CON.DT_FINAL,'DD/MM/YYYY'),'-')  AS DT_ALTA_MEDICA,
+      COALESCE(TO_CHAR(CON.DT_FINAL,'HH24:MI'),'-')     AS HR_ALTA_MEDICA,
+      CASE
+         WHEN ATD.TP_ATENDIMENTO IN ('U','A','E') THEN (SELECT GUIA.CD_SENHA FROM GUIA 
+                                                        WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                        AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                            WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'C'))
+         WHEN ATD.TP_ATENDIMENTO IN ('I') THEN (SELECT GUIA.CD_SENHA FROM GUIA 
+                                                WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                    WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'I'))                                           
+      END AS NUMERO_SENHA,
+      OPE.CD_CONVENIO AS COD_CONVENIO, 
+      OPE.NM_CONVENIO AS NM_CONVENIO,                  
+      CASE
+         WHEN PR.NM_PRESTADOR IS NULL AND B.NM_PRESTADOR IS NULL THEN '-'
+         WHEN PR.NM_PRESTADOR IS NOT NULL AND B.NM_PRESTADOR IS NULL THEN PR.DS_CODIGO_CONSELHO
+         WHEN PR.NM_PRESTADOR IS NULL AND B.NM_PRESTADOR IS NOT NULL THEN B.DS_CODIGO_CONSELHO         
+      END AS CRM_MEDICO_PROCEDIMENTO,  
+      CASE
+         WHEN IT.CD_PRO_FAT IN (10104020,10104011) THEN '13'
+         WHEN PR.NM_PRESTADOR IS NULL AND B.NM_PRESTADOR IS NULL THEN '-'
+         WHEN PR.NM_PRESTADOR IS NOT NULL AND B.NM_PRESTADOR IS NULL THEN AI.CD_ATI_MED
+         WHEN PR.NM_PRESTADOR IS NULL AND B.NM_PRESTADOR IS NOT NULL THEN ATI.CD_ATI_MED  
+      END AS GRAU_PARTICIPACAO,   
+      CASE
+         WHEN IT.CD_PRO_FAT IN (10104020,10104011) THEN 'INTENSIVISTA'
+         WHEN PR.NM_PRESTADOR IS NULL AND B.NM_PRESTADOR IS NULL THEN '-'
+         WHEN PR.NM_PRESTADOR IS NOT NULL AND B.NM_PRESTADOR IS NULL THEN AI.DS_ATI_MED
+         WHEN PR.NM_PRESTADOR IS NULL AND B.NM_PRESTADOR IS NOT NULL THEN ATI.DS_ATI_MED   
+      END AS ATIVIDADE_MEDICA,         
+      TO_CHAR(IT.DT_LANCAMENTO,'DD/MM/YYYY') AS DT_LANCAMENTO,
+      TO_CHAR(IT.HR_LANCAMENTO,'HH24:MM') AS HR_LANCAMENTO,
+      IT.VL_PERCENTUAL_MULTIPLA AS PERCENTUAL          
+      
+    FROM ATENDIME ATD
+    INNER JOIN PACIENTE PAC ON PAC.CD_PACIENTE = ATD.CD_PACIENTE
+    INNER JOIN REG_FAT CON  ON CON.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+    INNER JOIN CONVENIO OPE ON OPE.CD_CONVENIO = ATD.CD_CONVENIO
+    INNER JOIN ITREG_FAT IT ON IT.CD_REG_FAT = CON.CD_REG_FAT
+    LEFT JOIN PRO_FAT PRO   ON PRO.CD_PRO_FAT = IT.CD_PRO_FAT
+    LEFT JOIN PRESTADOR PR  ON PR.CD_PRESTADOR = IT.CD_PRESTADOR AND PR.CD_PRESTADOR NOT IN (1299,1368)    
+    LEFT JOIN SETOR SETE    ON SETE.CD_SETOR = IT.CD_SETOR 
+    LEFT JOIN ITLAN_MED LAN ON LAN.CD_REG_FAT = CON.CD_REG_FAT AND LAN.CD_LANCAMENTO = IT.CD_LANCAMENTO
+    LEFT JOIN PRESTADOR B   ON B.CD_PRESTADOR = LAN.CD_PRESTADOR
+    LEFT JOIN ATI_MED ATI   ON ATI.CD_ATI_MED = LAN.CD_ATI_MED   
+    LEFT JOIN ATI_MED AI    ON AI.CD_ATI_MED = IT.CD_ATI_MED
+    INNER JOIN PRO_FAT PF   ON PF.CD_PRO_FAT = IT.CD_PRO_FAT
+    
+    WHERE ((IT.CD_GRU_FAT IN (7) AND IT.CD_PRO_FAT NOT LIKE '5%' AND IT.CD_PRO_FAT NOT IN (20203047,20102011))   
+    OR IT.CD_GRU_FAT IN (6) 
+    OR IT.CD_PRO_FAT IN (40812049,40812065,40813916,40812057,40101037))
+    AND (PR.CD_PRESTADOR NOT IN (786,1360,610,62,609,63,1299) OR LAN.CD_LANCAMENTO IS NOT NULL)       
+    AND (PR.CD_TIP_PRESTA IN (8) OR PR.CD_TIP_PRESTA IS NULL)    
+    AND (ATI.CD_ATI_MED NOT IN (06,07) OR ATI.DS_ATI_MED NOT LIKE 'ANESTESISTA' OR AI.CD_ATI_MED NOT IN (06) OR AI.DS_ATI_MED NOT LIKE 'ANESTESISTA')
+    AND TO_DATE(COALESCE(CON.DT_FINAL,ATD.HR_ALTA_MEDICA)) BETWEEN TO_DATE (@P_INICIO) AND TO_DATE (@P_FIM) 
+    AND {V_CD} = {V_CD}      
+    AND TO_CHAR(IT.CD_REG_FAT) IN (SELECT REGEXP_SUBSTR(DECODE({VAR_CONTA},'0',TO_CHAR(IT.CD_REG_FAT),{VAR_CONTA}),'[^,]+', 1, LEVEL) FROM DUAL
+                                   CONNECT BY REGEXP_SUBSTR(DECODE({VAR_CONTA},'0',TO_CHAR(IT.CD_REG_FAT),{VAR_CONTA}),'[^,]+', 1, LEVEL) IS NOT NULL)  
+    AND (TRIM('{V_CONVENIO_AUX}') IS NULL OR OPE.CD_CONVENIO IN ({V_CONVENIO_AUX})) 
+    AND ATD.TP_ATENDIMENTO IN {VAR_CON_ATD}
+    GROUP BY OPE.CD_CONVENIO,ATD.CD_ATENDIMENTO,PAC.NM_PACIENTE,CON.CD_REG_FAT,IT.CD_PRO_FAT,PRO.DS_PRO_FAT,PR.NM_PRESTADOR,
+    IT.HR_LANCAMENTO,SETE.NM_SETOR,PR.CD_PRESTADOR,IT.CD_LANCAMENTO,PR.DS_CODIGO_CONSELHO,IT.TP_PAGAMENTO,ATD.NR_CARTEIRA,
+    ATD.TP_ATENDIMENTO,ATD.HR_ATENDIMENTO,ATD.DT_ALTA_MEDICA,B.DS_CODIGO_CONSELHO,B.NM_PRESTADOR,ATI.DS_ATI_MED,LAN.TP_PAGAMENTO,
+    CON.DT_INICIO,CON.DT_FINAL,AI.DS_ATI_MED,AI.CD_ATI_MED,OPE.NM_CONVENIO,ATI.CD_ATI_MED,IT.VL_PERCENTUAL_MULTIPLA,IT.CD_SETOR,
+    IT.DT_LANCAMENTO    
+    
+    UNION ALL
+   
+    SELECT  
+    
+      ATD.CD_ATENDIMENTO       AS NUM_ATENDIMENTO,
+      CON.CD_REG_AMB           AS NUM_CONTA,
+      PAC.NM_PACIENTE          AS NOME_PACIENTE,
+      TO_CHAR(ATD.NR_CARTEIRA) AS NUMERO_CARTEIRA,      
+      CASE
+         WHEN ATD.TP_ATENDIMENTO IN ('U','A','E') THEN (SELECT GUIA.NR_GUIA FROM GUIA 
+                                                        WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                        AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                            WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'C'))
+         WHEN ATD.TP_ATENDIMENTO IN ('I') THEN (SELECT GUIA.NR_GUIA FROM GUIA 
+                                                WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                    WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'I'))                                           
+      END AS NUMERO_GUIA,      
+      CASE 
+         WHEN IT.CD_SETOR = 3 THEN 53
+         WHEN ATD.TP_ATENDIMENTO LIKE 'U' THEN 11
+         WHEN ATD.TP_ATENDIMENTO LIKE 'E' THEN 4
+         WHEN ATD.TP_ATENDIMENTO LIKE 'A' THEN 4
+      END AS COD_ACOMODACAO,
+      CASE 
+         WHEN IT.CD_SETOR = 3 THEN 'CTI'
+         WHEN ATD.TP_ATENDIMENTO LIKE 'U' THEN 'PRONTO SOCORRO'
+         WHEN ATD.TP_ATENDIMENTO LIKE 'E' THEN 'AMBULATORIAL'
+         WHEN ATD.TP_ATENDIMENTO LIKE 'A' THEN 'AMBULATORIAL'
+      END AS DESC_ACOMODACAO,
+      CASE
+        WHEN OPE.CD_CONVENIO = 47 THEN
+                                      (SELECT To_Char(CP.DS_CODIGO_COBRANCA)  FROM COD_PRO CP
+                                       WHERE CP.CD_PRO_FAT = IT.CD_PRO_FAT AND OPE.CD_CONVENIO = 47)   
+        ELSE TO_CHAR(IT.CD_PRO_FAT)
+      END                   AS CODIGO_HONORARIO,
+      PRO.DS_PRO_FAT        AS DESCRICAO_HONORARIO, 
+      SUM(IT.QT_LANCAMENTO) AS QUANTIDADE,      
+      ''                    AS DT_ATENDIMENTO,
+      ''                    AS HR_ATENDIMENTO,
+      ''                    AS DT_ALTA_MEDICA,
+      ''                    AS HR_ALTA_MEDICA,
+      CASE
+         WHEN ATD.TP_ATENDIMENTO IN ('U','A','E') THEN (SELECT GUIA.CD_SENHA FROM GUIA 
+                                                  WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                  AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                      WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'C'))
+         WHEN ATD.TP_ATENDIMENTO IN ('I') THEN (SELECT GUIA.CD_SENHA FROM GUIA 
+                                                WHERE GUIA.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+                                                AND GUIA.CD_GUIA = (SELECT MIN (A.CD_GUIA) FROM GUIA A 
+                                                                    WHERE A.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO AND A.TP_GUIA LIKE 'I'))                                           
+      END AS NUMERO_SENHA,
+      OPE.CD_CONVENIO AS COD_CONVENIO, 
+      OPE.NM_CONVENIO AS NM_CONVENIO,                  
+      CASE
+         WHEN PR.NM_PRESTADOR IS NULL THEN '-'
+         WHEN PR.NM_PRESTADOR IS NOT NULL THEN PR.DS_CODIGO_CONSELHO               
+      END AS CRM_MEDICO_PROCEDIMENTO,  
+      CASE
+         WHEN IT.CD_PRO_FAT IN (10104020,10104011) THEN '13'
+         WHEN PR.NM_PRESTADOR IS NULL THEN '-'
+         WHEN PR.NM_PRESTADOR IS NOT NULL THEN AI.CD_ATI_MED          
+      END AS GRAU_PARTICIPACAO,   
+      CASE
+         WHEN IT.CD_PRO_FAT IN (10104020,10104011) THEN 'INTENSIVISTA'
+         WHEN PR.NM_PRESTADOR IS NULL THEN '-'
+         WHEN PR.NM_PRESTADOR IS NOT NULL THEN AI.DS_ATI_MED         
+      END AS ATIVIDADE_MEDICA,         
+      TO_CHAR(IT.HR_LANCAMENTO,'DD/MM/YYYY') AS DT_LANCAMENTO,
+      TO_CHAR(IT.HR_LANCAMENTO,'HH24:MM')    AS HR_LANCAMENTO,
+      IT.VL_PERCENTUAL_MULTIPLA              AS PERCENTUAL         
+        
+    FROM ATENDIME ATD
+    INNER JOIN PACIENTE PAC ON PAC.CD_PACIENTE = ATD.CD_PACIENTE
+    INNER JOIN ITREG_AMB IT ON IT.CD_ATENDIMENTO = ATD.CD_ATENDIMENTO
+    INNER JOIN REG_AMB CON  ON IT.CD_REG_AMB = CON.CD_REG_AMB
+    INNER JOIN CONVENIO OPE ON OPE.CD_CONVENIO = ATD.CD_CONVENIO  
+    LEFT JOIN PRO_FAT PRO   ON PRO.CD_PRO_FAT = IT.CD_PRO_FAT  
+    LEFT JOIN PRESTADOR PR  ON PR.CD_PRESTADOR = IT.CD_PRESTADOR    
+    LEFT JOIN SETOR SETE    ON SETE.CD_SETOR = IT.CD_SETOR    
+    LEFT JOIN ATI_MED AI    ON AI.CD_ATI_MED = IT.CD_ATI_MED
+    INNER JOIN PRO_FAT PF   ON PF.CD_PRO_FAT = IT.CD_PRO_FAT    
+       
+    WHERE ((IT.CD_GRU_FAT IN (7) AND IT.CD_PRO_FAT NOT LIKE '5%' AND IT.CD_PRO_FAT NOT IN (20203047,20102011))   
+    OR IT.CD_GRU_FAT IN (6)
+    OR IT.CD_PRO_FAT IN (40812049,40812065,40813916,40812057,40101037))      
+    AND (PR.CD_PRESTADOR NOT IN (786,1360,610,62,609,63,1299) OR PR.CD_PRESTADOR IS NULL)
+    AND (PR.CD_TIP_PRESTA IN (8) OR PR.CD_TIP_PRESTA IS NULL) 
+    AND {V_CD} = {V_CD}       
+    AND (AI.CD_ATI_MED NOT IN (06,07) OR AI.DS_ATI_MED NOT LIKE 'ANESTESISTA')            
+    AND TO_DATE(ATD.DT_ATENDIMENTO) BETWEEN TO_DATE (@P_INICIO) AND TO_DATE (@P_FIM)     
+    AND (TRIM('{V_CONVENIO_AUX}') IS NULL OR OPE.CD_CONVENIO IN ({V_CONVENIO_AUX})) 
+    AND ATD.TP_ATENDIMENTO IN {VAR_CON_ATD}
+    AND TO_CHAR(IT.CD_REG_AMB) IN (SELECT REGEXP_SUBSTR(DECODE({VAR_CONTA},'0',TO_CHAR(IT.CD_REG_AMB),{VAR_CONTA}),'[^,]+', 1, LEVEL) FROM DUAL
+                                   CONNECT BY REGEXP_SUBSTR(DECODE({VAR_CONTA},'0',TO_CHAR(IT.CD_REG_AMB),{VAR_CONTA}),'[^,]+', 1, LEVEL) IS NOT NULL)    
+    GROUP BY OPE.NM_CONVENIO,ATD.CD_ATENDIMENTO,PAC.NM_PACIENTE,CON.CD_REG_AMB,IT.CD_PRO_FAT,PRO.DS_PRO_FAT,PR.NM_PRESTADOR,
+    IT.HR_LANCAMENTO,SETE.NM_SETOR,PR.DS_CODIGO_CONSELHO,IT.TP_PAGAMENTO,ATD.TP_ATENDIMENTO,ATD.NR_CARTEIRA,ATD.DT_ATENDIMENTO,
+    ATD.DT_ALTA_MEDICA,AI.DS_ATI_MED,IT.CD_ATI_MED,COALESCE(TO_CHAR(ATD.HR_ATENDIMENTO,'DD/MM/YYYY'),'-'), AI.CD_ATI_MED,
+    COALESCE(TO_CHAR(ATD.HR_ATENDIMENTO,'HH24:MI'),'-'),COALESCE(TO_CHAR(ATD.DT_ALTA_MEDICA,'DD/MM/YYYY'),'-'),OPE.CD_CONVENIO,
+    COALESCE(TO_CHAR(ATD.DT_ALTA_MEDICA,'HH24:MI'),'-'),IT.VL_PERCENTUAL_MULTIPLA,CON.DT_LANCAMENTO_FINAL,IT.CD_SETOR 
+    
+    ) V   ORDER BY 1
+    
+ </SqlCommand><Type>Table</Type></CONSULTA_PRINCIPAL><CONVENIO Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>CONVENIO</Alias><Columns count="2" isList="true"><value>CODIGO,System.Double</value><value>DESCR,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>CONVENIO</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT
+  OPE.CD_CONVENIO AS CODIGO,
+  OPE.NM_CONVENIO AS DESCR
+FROM CONVENIO OPE
+ORDER BY 2</SqlCommand><Type>Table</Type></CONVENIO><TIPO_ATENDIMENTO Ref="5" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>TIPO_ATENDIMENTO</Alias><Columns count="2" isList="true"><value>DESC_ATENDIMENTO,System.String</value><value>TP_ATENDIMENTO,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>TIPO_ATENDIMENTO</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand> SELECT DISTINCT
+       ATD.TP_ATENDIMENTO AS TP_ATENDIMENTO,
+       CASE ATD.TP_ATENDIMENTO 
+          WHEN 'U' THEN 'URGENCIA'
+          WHEN 'I' THEN 'INTERNACAO'
+          WHEN 'A' THEN 'AMBULATORIAL'
+          WHEN 'E' THEN 'EXTERNO'
+       END DESC_ATENDIMENTO
+    FROM ATENDIME ATD   
+</SqlCommand><Type>Table</Type></TIPO_ATENDIMENTO></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="7" isList="true"><value>,V_CD,V_CD,,System.String,_x0031_,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,PERIODO,_x0031__x0020__x002d__x0020_PERÍODO_x003a_,,Stimulsoft.Report.DateTimeRange,Time_x003c__x003c__x007c__x003e__x003e_Time,False,True,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_CONVENIO_AUX,V_CONVENIO_AUX,,System.String,VAR_LISTA_CONVENIO_x002e_Count_x0028__x0029__x0020__x003d__x003d__x0020_0_x0020__x003f__x0020__x0022__x0027__x0027__x0022__x0020__x003a__x0020_VAR_LISTA_CONVENIO_x002e_ToQueryString_x0028__x0022__x0022__x0029_,True,True,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,VAR_LISTA_CONVENIO,_x0031__x0020__x002d__x0020_OPERADORA_x003a_,,Stimulsoft.Report.StringList,,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_ItemsInitializationType_x003e_Columns_x003c__x002f_ItemsInitializationType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_KeysColumn_x003e_CONVENIO_x002e_CODIGO_x003c__x002f_KeysColumn_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesColumn_x003e_CONVENIO_x002e_DESCR_x003c__x002f_ValuesColumn_x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,VAR_CON_ATD,VAR_CON_ATD,,System.String,IIF_x0028_TIPOATD_x002e_Count_x0028__x0029__x0020__x003d__x003d__x0020_0_x002c__x0020__x0022__x0028__x0027__x0027__x0029__x0022__x002c__x0020__x0022__x0028__x0022__x0020__x002b__x0020_TIPOATD_x002e_ToQueryString_x0028__x0022__x0027__x0022__x0029__x0020__x002b__x0020__x0022__x0029__x0022__x0029_,True,True,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,TIPOATD,_x0033__x0020__x002d__x0020_TIPO_x0020_DE_x0020_ATENDIMENTO_x003a_,,Stimulsoft.Report.StringList,,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_AllowUserValues_x003e_False_x003c__x002f_AllowUserValues_x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_ItemsInitializationType_x003e_Columns_x003c__x002f_ItemsInitializationType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_KeysColumn_x003e_TIPO_ATENDIMENTO_x002e_TP_ATENDIMENTO_x003c__x002f_KeysColumn_x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesColumn_x003e_TIPO_ATENDIMENTO_x002e_DESC_ATENDIMENTO_x003c__x002f_ValuesColumn_x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,VAR_CONTA,_x0034__x0020__x002d__x0020_NÚMERO_x0020_DA_x0020_CONTA_x003a_,,System.String,_x0027_0_x0027_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><MetaTags count="1" isList="true"><value>reportId,_x0032_53</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="6" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="3" isList="true"><PageHeaderBand1 Ref="7" isKey="true" type="PageHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,0.4,68,0.8</ClientRectangle><Components count="1" isList="true"><Text47 Ref="8" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>27.4,0,9.2,1</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,20,Bold| Underline</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text47</Name><Page isRef="6"/><Parent isRef="7"/><ShiftMode>None</ShiftMode><Text>Arquivo para a Cooperativa</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text47></Components><Conditions count="0" isList="true"/><Name>PageHeaderBand1</Name><Page isRef="6"/><Parent isRef="6"/></PageHeaderBand1><GroupHeaderBand1 Ref="9" isKey="true" type="GroupHeaderBand"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,2,68,0.4</ClientRectangle><Components count="23" isList="true"><Text3 Ref="10" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Atend.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text3><Text4 Ref="11" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>1.6,0,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Conta</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text4><Text6 Ref="12" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>3.8,0,6.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Paciente</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text6><Text8 Ref="13" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.4,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Mátricula</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text8><Text10 Ref="14" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>13.6,0,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Guia</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text10><Text12 Ref="15" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.4,0,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Cod. Acom.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text12><Text14 Ref="16" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.4,0,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Desc. Acom.</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text14><Text16 Ref="17" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>22.4,0,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Código</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text16><Text18 Ref="18" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>25.2,0,9.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Descrição</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text18><Text20 Ref="19" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>35,0,1,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Qtd</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text20><Text22 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>36.2,0,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text22</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Dt. Internação</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text22><Text24 Ref="21" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>38.6,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text24</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Hr. Intern.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text24><Text26 Ref="22" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>40.4,0,2.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text26</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Dt. Alta</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text26><Text28 Ref="23" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>43,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text28</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Hr. Alta</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text28><Text30 Ref="24" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>44.8,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text30</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Senha Aut.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text30><Text32 Ref="25" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>48,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text32</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Cod. Conv.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text32><Text34 Ref="26" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>49.8,0,5.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text34</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Convênio</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text34><Text36 Ref="27" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>55.2,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text36</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>CRM</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text36><Text38 Ref="28" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>57,0,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text38</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Grau P.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text38><Text40 Ref="29" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>58.4,0,3.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text40</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Função</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text40><Text42 Ref="30" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>61.8,0,2.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text42</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Dt. Lançamento</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text42><Text43 Ref="31" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>64.4,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text43</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>HR. Lançam.</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text43><Text46 Ref="32" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>66.2,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text46</Name><Page isRef="6"/><Parent isRef="9"/><ShiftMode>None</ShiftMode><Text>Percentual</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text46></Components><Conditions count="0" isList="true"/><Name>GroupHeaderBand1</Name><Page isRef="6"/><Parent isRef="6"/></GroupHeaderBand1><DataBand1 Ref="33" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,3.2,68,0.4</ClientRectangle><Components count="23" isList="true"><Text1 Ref="34" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.NUM_ATENDIMENTO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text1><Text2 Ref="35" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>1.6,0,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.NUM_CONTA}</Text><TextBrush>[0:0:0]</TextBrush></Text2><Text5 Ref="36" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>3.8,0,6.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.NOME_PACIENTE}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text5><Text7 Ref="37" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10.4,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.NUMERO_CARTEIRA}</Text><TextBrush>Black</TextBrush><TextFormat Ref="38" isKey="true" type="CustomFormat"><State>None</State><StringFormat>0</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text7><Text9 Ref="39" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>13.6,0,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.NUMERO_GUIA}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text9><Text11 Ref="40" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.4,0,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.COD_ACOMODACAO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text11><Text13 Ref="41" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.4,0,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.DESC_ACOMODACAO}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text13><Text15 Ref="42" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>22.4,0,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.CODIGO_HONORARIO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text15><Text17 Ref="43" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>25.2,0,9.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text17</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.DESCRICAO_HONORARIO}</Text><TextBrush>[0:0:0]</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><VertAlignment>Center</VertAlignment></Text17><Text19 Ref="44" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>35,0,1,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,7</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.QUANTIDADE}</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text19><Text21 Ref="45" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>36.2,0,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.DT_ATENDIMENTO}</Text><TextBrush>Black</TextBrush><TextFormat Ref="46" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy</StringFormat></TextFormat><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text21><Text23 Ref="47" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>38.6,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text23</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.HR_ATENDIMENTO}</Text><TextBrush>Black</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text23><Text25 Ref="48" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>40.4,0,2.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text25</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.DT_ALTA_MEDICA}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text25><Text27 Ref="49" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>43,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text27</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.HR_ALTA_MEDICA}</Text><TextBrush>Black</TextBrush><TextFormat Ref="50" isKey="true" type="TimeFormat"><State>None</State></TextFormat><VertAlignment>Center</VertAlignment></Text27><Text29 Ref="51" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>44.8,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text29</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.SENHA_AUTORIZACAO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text29><Text31 Ref="52" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>48,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text31</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.COD_CONVENIO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text31><Text33 Ref="53" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>49.8,0,5.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,7</Font><Margins>0,0,0,0</Margins><Name>Text33</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.NM_CONVENIO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text33><Text35 Ref="54" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>55.2,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text35</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.CRM_MEDICO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text35><Text37 Ref="55" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>57,0,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text37</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.GRAU_PARTICIPACAO}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text37><Text39 Ref="56" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>58.4,0,3.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text39</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.ATIVIDADE_MEDICA}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text39><Text41 Ref="57" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>61.8,0,2.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text41</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.DT_LANCAMENTO}</Text><TextBrush>Black</TextBrush><TextFormat Ref="58" isKey="true" type="DateFormat"><State>None</State><StringFormat>dd/MM/yyyy HH:mm</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text41><Text44 Ref="59" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>64.4,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text44</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.HR_LANCAMENTO}</Text><TextBrush>[0:0:0]</TextBrush><TextFormat Ref="60" isKey="true" type="TimeFormat"><State>None</State><StringFormat>HH:mm:ss</StringFormat></TextFormat><VertAlignment>Center</VertAlignment></Text44><Text45 Ref="61" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>66.2,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text45</Name><Page isRef="6"/><Parent isRef="33"/><ShiftMode>None</ShiftMode><Text>{CONSULTA_PRINCIPAL.PERCENTUAL}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text45></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>CONSULTA_PRINCIPAL</DataSourceName><Filters count="0" isList="true"/><Interaction Ref="62" isKey="true" type="Stimulsoft.Report.Components.StiBandInteraction"><SortingColumn>DataBand1.NUM_ATENDIMENTO</SortingColumn></Interaction><KeepDetails>None</KeepDetails><Name>DataBand1</Name><Page isRef="6"/><Parent isRef="6"/><Sort count="0" isList="true"/></DataBand1></Components><Conditions count="0" isList="true"/><Guid>66a17cec54da46ef8be7f20d50b7f35b</Guid><Margins>1,1,1,1</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Page isRef="6"/><PageHeight>29.7</PageHeight><PageWidth>70</PageWidth><Report isRef="0"/><Watermark Ref="63" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="64" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Relatório</ReportAlias><ReportChanged>03/07/2022 04:44:08 PM</ReportChanged><ReportCreated>10/28/2019 10:49:14 AM</ReportCreated><ReportFile>ARQUIVO COOPERATIVA</ReportFile><ReportGuid>36d9d44d12e845aa860e5fec09a8c18c</ReportGuid><ReportName>Relatório</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2018.2.4-SNAPSHOT from 12 Julho 2018, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>

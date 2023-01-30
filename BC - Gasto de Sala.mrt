@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbK3KE9xop3bKGgA+kSzCo04aaPLA1EBRW2hROpps5OLePfrZ0sx7HJJFfTOGLkP3u5PpVZ88+zHKMjcym2gu9SyQ8vkd5G88yjlGE34bUL1MJGl2F3CjH8AtRhk3Kw/5FzRKdUFy9ltRGj404Alu/k4aeJld7MZ6gGEgOV0rHewsneNXXbDCWsGZURyPSSv2hITzcprIl1/Z2lc9ADic7Du9+vUa6J1b2zl3GL0oKrSNMFv1n3zSHkozIB0/OC7+Hj/691q0qTbbNC962ltboE6actNaHrBR1ihgEc98w==</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="7" isList="true"><Equipamentos Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Equipamentos</Alias><Columns count="2" isList="true"><value>DS_APARELHO_EQUIPAMENTO,System.String</value><value>QT_UTILIZADA,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Equipamentos</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>select
+  DISTINCT
+     aviso_equipamentos.cd_aparelho_equipamento ||' - '|| aparelhos_equipto.ds_aparelho_equipamento ds_aparelho_equipamento
+    ,Sum (aviso_equipamentos.qt_utilizada) qt_utilizada
+    FROM
+       aviso_equipamentos
+       ,aparelhos_equipto
+    WHERE aviso_equipamentos.cd_aparelho_equipamento = aparelhos_equipto.cd_aparelho_equipamento
+--      AND aviso_equipamentos.cd_aviso_cirurgia = 696
+        AND aviso_equipamentos.cd_aviso_cirurgia = ('{CD_AVISO1}')
+
+GROUP BY
+     aviso_equipamentos.cd_aparelho_equipamento
+    ,aparelhos_equipto.ds_aparelho_equipamento
+ORDER BY 1 desc
+</SqlCommand><Type>Table</Type></Equipamentos><Mat_Med Ref="4" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Mat_Med</Alias><Columns count="5" isList="true"><value>CD_AVISO_CIRURGIA,System.Double</value><value>DS_ESPECIE,System.String</value><value>DS_PRODUTO,System.String</value><value>DS_UNIDADE,System.String</value><value>QT_CONSUMIDO,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Mat_Med</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT  P.DS_PRODUTO || ' - ' ||P.CD_PRODUTO DS_PRODUTO
+       ,P.ds_especie
+       ,P.ds_unidade
+       ,P.CD_AVISO_CIRURGIA
+       ,SUM (P.QT_MOVIMENTACAO_P) - Sum (C.QT_MOVIMENTACAO_C) QT_CONSUMIDO
+ FROM
+
+(SELECT
+  DISTINCT
+     ITMVTO_ESTOQUE.CD_PRODUTO
+    ,PRODUTO.DS_PRODUTO DS_PRODUTO
+    ,MVTO_ESTOQUE.TP_MVTO_ESTOQUE
+    ,especie.ds_especie
+    ,uni_pro.ds_unidade
+    ,MVTO_ESTOQUE.CD_AVISO_CIRURGIA
+    ,SUM (ITMVTO_ESTOQUE.QT_MOVIMENTACAO) QT_MOVIMENTACAO_P
+
+  FROM
+        MVTO_ESTOQUE
+       ,ITMVTO_ESTOQUE
+       ,UNI_PRO
+       ,PRODUTO
+       ,ESPECIE
+       ,AVISO_CIRURGIA
+  WHERE MVTO_ESTOQUE.CD_MVTO_ESTOQUE     = ITMVTO_ESTOQUE.CD_MVTO_ESTOQUE
+    AND PRODUTO.CD_PRODUTO               = ITMVTO_ESTOQUE.CD_PRODUTO
+    AND ITMVTO_ESTOQUE.CD_UNI_PRO        = UNI_PRO.CD_UNI_PRO
+    AND PRODUTO.CD_ESPECIE               = ESPECIE.CD_ESPECIE
+    AND MVTO_ESTOQUE.CD_ESTOQUE        = 4
+    AND PRODUTO.CD_ESPECIE     &lt;&gt; '3'
+
+    AND MVTO_ESTOQUE.TP_MVTO_ESTOQUE = 'P' --P
+    AND AVISO_CIRURGIA.CD_AVISO_CIRURGIA  = MVTO_ESTOQUE.CD_AVISO_CIRURGIA
+--    AND AVISO_CIRURGIA.TP_SITUACAO = 'R'
+--    AND MVTO_ESTOQUE.CD_MOT_DEV IS NULL
+--    AND MVTO_ESTOQUE.CD_AVISO_CIRURGIA = 2008
+
+
+GROUP BY
+     ITMVTO_ESTOQUE.CD_PRODUTO
+    ,PRODUTO.DS_PRODUTO
+    ,MVTO_ESTOQUE.TP_MVTO_ESTOQUE
+    ,especie.ds_especie
+    ,uni_pro.ds_unidade
+    ,MVTO_ESTOQUE.CD_AVISO_CIRURGIA
+) P
+,
+
+(SELECT
+  DISTINCT
+     ITMVTO_ESTOQUE.CD_PRODUTO
+    ,PRODUTO.DS_PRODUTO DS_PRODUTO
+    ,MVTO_ESTOQUE.TP_MVTO_ESTOQUE
+    ,especie.ds_especie
+    ,uni_pro.ds_unidade
+    ,MVTO_ESTOQUE.CD_AVISO_CIRURGIA
+    ,SUM (ITMVTO_ESTOQUE.QT_MOVIMENTACAO) QT_MOVIMENTACAO_C
+
+  FROM
+        MVTO_ESTOQUE
+       ,ITMVTO_ESTOQUE
+       ,UNI_PRO
+       ,PRODUTO
+       ,ESPECIE
+       ,AVISO_CIRURGIA
+  WHERE MVTO_ESTOQUE.CD_MVTO_ESTOQUE     = ITMVTO_ESTOQUE.CD_MVTO_ESTOQUE
+    AND PRODUTO.CD_PRODUTO               = ITMVTO_ESTOQUE.CD_PRODUTO
+    AND ITMVTO_ESTOQUE.CD_UNI_PRO        = UNI_PRO.CD_UNI_PRO
+    AND PRODUTO.CD_ESPECIE               = ESPECIE.CD_ESPECIE
+    AND MVTO_ESTOQUE.CD_ESTOQUE        = 4
+    AND PRODUTO.CD_ESPECIE     &lt;&gt; '3'
+
+    AND MVTO_ESTOQUE.TP_MVTO_ESTOQUE = 'C' --C
+    AND AVISO_CIRURGIA.CD_AVISO_CIRURGIA  = MVTO_ESTOQUE.CD_AVISO_CIRURGIA
+--    AND AVISO_CIRURGIA.TP_SITUACAO = 'R'
+--    AND MVTO_ESTOQUE.CD_MOT_DEV IS NULL
+--    AND MVTO_ESTOQUE.CD_AVISO_CIRURGIA = 2008
+
+
+GROUP BY
+     ITMVTO_ESTOQUE.CD_PRODUTO
+    ,PRODUTO.DS_PRODUTO
+    ,MVTO_ESTOQUE.TP_MVTO_ESTOQUE
+    ,especie.ds_especie
+    ,uni_pro.ds_unidade
+    ,MVTO_ESTOQUE.CD_AVISO_CIRURGIA
+
+) C
+WHERE 1=1
+  AND P.CD_PRODUTO = C.CD_PRODUTO(+)
+  AND P.CD_AVISO_CIRURGIA = C.CD_AVISO_CIRURGIA
+--  AND C.CD_AVISO_CIRURGIA = 2008
+  AND TO_NUMBER ((P.QT_MOVIMENTACAO_P) - (C.QT_MOVIMENTACAO_C))&gt;'+0,001'
+  AND C.CD_AVISO_CIRURGIA = ('{CD_AVISO1}')
+
+GROUP BY
+        P.DS_PRODUTO || ' - ' ||P.CD_PRODUTO 
+       ,P.ds_especie
+       ,P.ds_unidade
+       ,P.CD_AVISO_CIRURGIA       
+ORDER BY 2,1</SqlCommand><Type>Table</Type></Mat_Med><Opme Ref="5" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Opme</Alias><Columns count="6" isList="true"><value>CD_ESPECIE,System.Double</value><value>CD_UNI_PRO,System.Double</value><value>DS_ESPECIE,System.String</value><value>DS_PRODUTO,System.String</value><value>DS_UNIDADE,System.String</value><value>QT_CONSUMO1,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Opme</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT DISTINCT
+                 PRODUTO.CD_ESPECIE
+                ,ESPECIE.DS_ESPECIE
+                ,PRODUTO.DS_PRODUTO ||' - '|| ITMVTO_ESTOQUE.CD_PRODUTO DS_PRODUTO 
+                ,ITMVTO_ESTOQUE.CD_UNI_PRO
+                ,UNI_PRO.DS_UNIDADE
+                ,SUM( ITMVTO_ESTOQUE.QT_MOVIMENTACAO * DECODE( MVTO_ESTOQUE.TP_MVTO_ESTOQUE, 'P', 1, -1 )  ) QT_CONSUMO1
+FROM
+    DBAMV.MVTO_ESTOQUE
+    ,DBAMV.ITMVTO_ESTOQUE
+    ,DBAMV.PRODUTO
+    ,DBAMV.UNI_PRO
+    ,DBAMV.ESPECIE
+    ,DBAMV.ESTOQUE
+WHERE  MVTO_ESTOQUE.CD_MVTO_ESTOQUE = ITMVTO_ESTOQUE.CD_MVTO_ESTOQUE
+AND    ITMVTO_ESTOQUE.CD_PRODUTO  =   PRODUTO.CD_PRODUTO
+AND    ITMVTO_ESTOQUE.CD_UNI_PRO    =   UNI_PRO.CD_UNI_PRO
+AND    PRODUTO.CD_ESPECIE   =   ESPECIE.CD_ESPECIE
+AND    MVTO_ESTOQUE.CD_ESTOQUE  = ESTOQUE.CD_ESTOQUE
+AND    ESPECIE.CD_ESPECIE     = 3
+--AND    MVTO_ESTOQUE.CD_AVISO_CIRURGIA = 2008
+AND    MVTO_ESTOQUE.CD_AVISO_CIRURGIA = ('{CD_AVISO1}')
+GROUP BY
+         ITMVTO_ESTOQUE.CD_PRODUTO
+        ,PRODUTO.DS_PRODUTO
+        ,PRODUTO.CD_ESPECIE
+        ,ITMVTO_ESTOQUE.CD_UNI_PRO
+        ,UNI_PRO.DS_UNIDADE
+        ,ESPECIE.DS_ESPECIE
+HAVING SUM( ITMVTO_ESTOQUE.QT_MOVIMENTACAO * DECODE( MVTO_ESTOQUE.TP_MVTO_ESTOQUE, 'P', 1, -1 )  )   &lt;&gt; 0
+ ORDER BY PRODUTO.CD_ESPECIE,2,3</SqlCommand><Type>Table</Type></Opme><Corpo_Cabecalho Ref="6" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Corpo_Cabecalho</Alias><Columns count="33" isList="true"><value>CD_ANESTESISTA,System.Double</value><value>CD_ATENDIMENTO,System.Double</value><value>CD_AVISO_CIRURGIA,System.Double</value><value>CD_CEN_CIR,System.Double</value><value>CD_CIRURGIA,System.Double</value><value>CD_CIRURGIAO,System.Double</value><value>CD_CIRURGIA_AVISO,System.Double</value><value>CD_SAL_CIR,System.Double</value><value>CD_TIP_ANEST,System.Double</value><value>CODIGO_PEDIATRA,System.Double</value><value>DATA,System.String</value><value>DATA_ATUAL,System.String</value><value>DS_CEN_CIR,System.String</value><value>DS_CIRURGIA,System.String</value><value>DS_LEITO,System.String</value><value>DS_OBSERVACAO,System.String</value><value>DS_RESUMIDA,System.String</value><value>DS_SAL_CIR,System.String</value><value>DS_TIP_ANEST,System.String</value><value>DT_ENTRADA_SAL_CIR,System.String</value><value>DT_FIM_ANESTESIA,System.String</value><value>DT_FIM_CIRURGIA,System.String</value><value>DT_INICIO_ANESTESIA,System.String</value><value>DT_INICIO_CIRURGIA,System.String</value><value>DT_SAIDA_SAL_CIR,System.String</value><value>HORA,System.String</value><value>IDADE_PACIENTE,System.String</value><value>NM_ANESTESISTA,System.String</value><value>NM_CIRURGIAO,System.String</value><value>NM_CONVENIO,System.String</value><value>NM_PACIENTE2,System.String</value><value>NOME_PEDIATRA,System.String</value><value>SEXO_PACIENTE,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Corpo_Cabecalho</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>select
+  DISTINCT
+     To_Char (age_cir.dt_inicio_age_cir,'hh24:mi') hora
+    ,Nvl (To_Char (age_cir.dt_inicio_age_cir,'dd/mm/yyyy'),To_Char (dt_realizacao,'dd/mm/yyyy'))data
+    ,(SELECT To_Char(SYSDATE ,'dd/mm/yyyy HH24:MI')dt FROM dual)Data_Atual
+    ,cirurgia_aviso.cd_cirurgia_aviso
+    ,aviso_cirurgia.cd_atendimento
+
+    ,To_Char (aviso_cirurgia.dt_realizacao,'hh24:mi') dt_entrada_sal_cir
+    ,To_Char (aviso_cirurgia.dt_saida_sal_cir,'hh24:mi') dt_saida_sal_cir
+
+
+    ,To_Char (aviso_cirurgia.dt_inicio_cirurgia,'hh24:mi')  dt_inicio_cirurgia
+    ,To_Char (aviso_cirurgia.dt_fim_cirurgia,'hh24:mi') dt_fim_cirurgia
+
+    ,To_Char (aviso_cirurgia.dt_inicio_anestesia,'hh24:mi') dt_inicio_anestesia
+    ,To_Char (aviso_cirurgia.dt_fim_anestesia,'hh24:mi') dt_fim_anestesia
+
+    ,leito.ds_resumo ds_leito
+
+    ,cirurgia_aviso.ds_observacao
+    ,age_cir.cd_sal_cir
+    ,sal_cir.ds_sal_cir
+    ,cen_cir.ds_cen_cir
+    ,sal_cir.ds_resumida
+    ,aviso_cirurgia.cd_aviso_cirurgia
+    ,cen_cir.cd_cen_cir
+    ,aviso_cirurgia.cd_tip_anest
+    ,tip_anest.ds_tip_anest
+    ,cirurgia_aviso.cd_cirurgia
+    ,cirurgia.ds_cirurgia
+    ,convenio.nm_convenio
+    ,aviso_cirurgia.cd_prestador_pediatra codigo_pediatra
+    ,pediatranome.nm_prestador nome_pediatra
+
+    ,anestesista.cd_prestador cd_anestesista
+    ,anestesista.nm_prestador nm_anestesista
+    ,cirurgiao.cd_prestador cd_cirurgiao
+    ,cirurgiao.nm_prestador nm_cirurgiao
+
+--    ,aviso_cirurgia.cd_paciente codigo_paciente
+--    ,itmvto_estoque.cd_produto
+--    ,produto.ds_produto
+--    ,aviso_equipamentos.cd_aparelho_equipamento
+--    ,aparelhos_equipto.ds_aparelho_equipamento
+--    ,aviso_equipamentos.qt_utilizada
+
+
+    ,decode(aviso_cirurgia.cd_paciente,null,aviso_cirurgia.nm_paciente,
+                                         paciente.nm_paciente)       nm_paciente2,
+       aviso_cirurgia.VL_IDADE||' '||Decode(vl_idade, NULL, NULL,
+                                                     (Decode(aviso_cirurgia.TP_IDADE,Upper('D'),Upper('Dia(s)'),
+                                                                                     Upper('M'),Upper('Mês(s)'),
+                                                                                     Upper('A'),Upper('Ano(s)'))))idade_paciente,
+       Decode(aviso_cirurgia.tp_sexo,Upper('F'),Upper('Feminino'),
+                                     Upper('M'),Upper('Masculino'),
+                                     Upper('I'),Upper('Indefinido'),
+                                     Upper('Não Informado'))                                     sexo_paciente
+
+
+      FROM
+           age_cir
+          ,aviso_cirurgia
+          ,prestador_aviso
+          ,cen_cir
+          ,sal_cir
+          ,paciente
+          ,tip_anest
+
+          ,cirurgia_aviso
+          ,convenio
+          ,cirurgia
+          ,prestador pediatranome
+
+      ,(
+        select prestador_aviso.cd_aviso_cirurgia,
+               prestador_aviso.cd_ati_med,
+               prestador_aviso.cd_prestador,
+               prestador_aviso.tp_pagamento,
+               prestador_aviso.cd_cirurgia,
+               prestador.nm_prestador,
+               --sn_principal,
+               prestador_aviso.cd_cirurgia_aviso
+          from dbamv.prestador_aviso,prestador
+         where cd_ati_med = 06
+           AND prestador_aviso.cd_prestador = prestador.cd_prestador
+       ) anestesista
+
+     ,(
+        select prestador_aviso.cd_aviso_cirurgia,
+               prestador_aviso.cd_ati_med,
+               prestador_aviso.cd_prestador,
+               prestador_aviso.tp_pagamento,
+               prestador_aviso.cd_cirurgia,
+               prestador.nm_prestador,
+               --sn_principal,
+               prestador_aviso.cd_cirurgia_aviso
+          from dbamv.prestador_aviso,prestador
+         where cd_ati_med = 00
+           AND prestador_aviso.cd_prestador = prestador.cd_prestador
+       ) cirurgiao
+
+
+       ,prestador
+       ,mvto_estoque
+       ,itmvto_estoque
+       ,produto
+       ,aviso_equipamentos
+       ,aparelhos_equipto
+       ,leito
+       ,atendime
+          WHERE 1=1
+            AND aviso_cirurgia.cd_aviso_cirurgia = age_cir.cd_aviso_cirurgia(+)
+            AND cirurgia_aviso.cd_aviso_cirurgia = aviso_cirurgia.cd_aviso_cirurgia
+
+            AND prestador_aviso.cd_aviso_cirurgia = aviso_cirurgia.cd_aviso_cirurgia
+            AND aviso_cirurgia.cd_cen_cir        = cen_cir.cd_cen_cir
+            AND aviso_cirurgia.cd_sal_cir        = sal_cir.cd_sal_cir
+            AND cirurgia_aviso.cd_cirurgia       = cirurgia.cd_cirurgia
+
+            AND cirurgia_aviso.cd_convenio       = convenio.cd_convenio
+
+            AND aviso_cirurgia.cd_prestador_pediatra = pediatranome.cd_prestador (+)
+
+            AND cirurgia_aviso.cd_aviso_cirurgia = anestesista.cd_aviso_cirurgia(+)
+            AND anestesista.cd_prestador         = prestador.cd_prestador (+)
+
+            AND cirurgia_aviso.cd_aviso_cirurgia = cirurgiao.cd_aviso_cirurgia(+)
+
+            AND aviso_cirurgia.cd_tip_anest      = tip_anest.cd_tip_anest(+)
+            AND aviso_cirurgia.cd_paciente       = paciente.cd_paciente(+)
+
+            AND cirurgia_aviso.cd_cirurgia_aviso = prestador_aviso.cd_cirurgia_aviso
+
+            AND mvto_estoque.cd_aviso_cirurgia   = cirurgia_aviso.cd_aviso_cirurgia
+            AND mvto_estoque.cd_mvto_estoque     = itmvto_estoque.cd_mvto_estoque
+            AND produto.cd_produto               = itmvto_estoque.cd_produto
+            AND cirurgia_aviso.cd_aviso_cirurgia  = aviso_equipamentos.cd_aviso_cirurgia
+            AND aviso_equipamentos.cd_aparelho_equipamento = aparelhos_equipto.cd_aparelho_equipamento
+            AND atendime.cd_atendimento          = aviso_cirurgia.cd_atendimento
+            AND atendime.cd_leito                = leito.cd_leito(+)
+--            AND cirurgia_aviso.cd_aviso_cirurgia = 3121
+            AND cirurgia_aviso.cd_aviso_cirurgia = ('{CD_AVISO1}')
+ORDER BY 1
+</SqlCommand><Type>Table</Type></Corpo_Cabecalho><Mat_Med2 Ref="7" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Mat_Med2</Alias><Columns count="6" isList="true"><value>CD_ATENDIMENTO,System.Double</value><value>CD_AVISO_CIRURGIA,System.Double</value><value>DS_ESPECIE,System.String</value><value>DS_PRODUTO,System.String</value><value>DS_UNIDADE,System.String</value><value>QT_CONSUMIDA,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Mat_Med2</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT
+     cd_atendimento
+    ,cd_aviso_cirurgia
+    ,ds_especie
+    ,ds_produto ||' - '|| cd_produto ds_produto
+    ,ds_unidade
+    ,Sum(qt_consumida) qt_consumida
+FROM
+(
+SELECT DISTINCT
+     prod_atend.cd_atendimento
+    ,aviso_cirurgia.cd_aviso_cirurgia
+    ,especie.ds_especie
+    ,prod_atend.cd_produto
+    ,produto.ds_produto
+    ,uni_pro.ds_unidade
+    ,(prod_atend.qt_saida - Prod_Atend.qt_devolvida)/VERIF_VL_FATOR_PROD(Prod_Atend.Cd_Produto, 'G') qt_consumida
+  from prod_atend
+      ,produto
+      ,aviso_cirurgia
+      ,especie
+      ,uni_pro
+      ,atendime
+      ,ITMVTO_ESTOQUE
+      ,mvto_estoque
+  where 1=1
+    and produto.cd_produto             = prod_atend.cd_produto
+    and produto.cd_especie             = especie.cd_especie
+    and aviso_cirurgia.cd_atendimento  = prod_atend.cd_atendimento
+    and prod_atend.cd_aviso_cirurgia   = aviso_cirurgia.cd_aviso_cirurgia
+    AND atendime.cd_atendimento        = prod_atend.cd_atendimento
+    and uni_pro.cd_produto             = prod_atend.cd_produto
+
+    AND itmvto_estoque.cd_produto      = prod_atend.cd_produto
+    AND itmvto_estoque.cd_lote         = prod_atend.cd_lote
+    AND itmvto_estoque.cd_uni_pro      = uni_pro.cd_uni_pro
+    AND mvto_estoque.cd_mvto_estoque   = itmvto_estoque.cd_mvto_estoque
+    AND mvto_estoque.cd_atendimento    = prod_atend.cd_atendimento
+    AND mvto_estoque.cd_aviso_cirurgia = aviso_cirurgia.cd_aviso_cirurgia
+
+    and prod_atend.cd_estoque          = 4
+    and produto.cd_especie             &lt;&gt; '3'
+--    and aviso_cirurgia.tp_situacao     = Upper('r')
+--    and mvto_estoque.cd_aviso_cirurgia = 2008
+    AND To_Number(((Round(prod_atend.qt_saida))))-(Round(prod_atend.qt_devolvida)) &gt; '+0,01'
+group by
+     prod_atend.cd_atendimento
+    ,aviso_cirurgia.cd_aviso_cirurgia
+    ,especie.ds_especie
+    ,prod_atend.cd_produto
+    ,produto.ds_produto
+    ,uni_pro.ds_unidade
+    ,prod_atend.qt_saida - Prod_Atend.qt_devolvida
+ORDER BY
+       4,3,5
+) Gasto_Sala
+
+WHERE 1=1
+  AND Gasto_Sala.cd_aviso_cirurgia = ('{CD_AVISO1}')
+--  AND Gasto_Sala.cd_aviso_cirurgia = ('2008')
+
+
+GROUP BY
+     cd_atendimento
+    ,cd_aviso_cirurgia
+    ,ds_especie
+    ,cd_produto
+    ,ds_produto
+    ,ds_unidade
+ORDER BY
+       3,4</SqlCommand><Type>Table</Type></Mat_Med2><Mat_med1 Ref="8" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Mat_med1</Alias><Columns count="6" isList="true"><value>CD_ESPECIE,System.Double</value><value>CD_UNI_PRO,System.Double</value><value>DS_ESPECIE,System.String</value><value>DS_PRODUTO,System.String</value><value>DS_UNIDADE,System.String</value><value>QT_CONSUMO1,System.Double</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Mat_med1</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT DISTINCT
+                 PRODUTO.CD_ESPECIE
+                ,ESPECIE.DS_ESPECIE
+                ,PRODUTO.DS_PRODUTO ||' - '|| ITMVTO_ESTOQUE.CD_PRODUTO DS_PRODUTO 
+                ,ITMVTO_ESTOQUE.CD_UNI_PRO
+                ,UNI_PRO.DS_UNIDADE
+                ,SUM( ITMVTO_ESTOQUE.QT_MOVIMENTACAO * DECODE( MVTO_ESTOQUE.TP_MVTO_ESTOQUE, 'P', 1, -1 )  ) QT_CONSUMO1
+FROM
+    DBAMV.MVTO_ESTOQUE
+    ,DBAMV.ITMVTO_ESTOQUE
+    ,DBAMV.PRODUTO
+    ,DBAMV.UNI_PRO
+    ,DBAMV.ESPECIE
+    ,DBAMV.ESTOQUE
+WHERE  MVTO_ESTOQUE.CD_MVTO_ESTOQUE = ITMVTO_ESTOQUE.CD_MVTO_ESTOQUE
+AND    ITMVTO_ESTOQUE.CD_PRODUTO  =   PRODUTO.CD_PRODUTO
+AND    ITMVTO_ESTOQUE.CD_UNI_PRO    =   UNI_PRO.CD_UNI_PRO
+AND    PRODUTO.CD_ESPECIE   =   ESPECIE.CD_ESPECIE
+AND    MVTO_ESTOQUE.CD_ESTOQUE  = ESTOQUE.CD_ESTOQUE
+AND    ESPECIE.CD_ESPECIE     &lt;&gt; 3
+--AND    MVTO_ESTOQUE.CD_AVISO_CIRURGIA = 2008
+AND    MVTO_ESTOQUE.CD_AVISO_CIRURGIA = ('{CD_AVISO1}')
+GROUP BY
+         ITMVTO_ESTOQUE.CD_PRODUTO
+        ,PRODUTO.DS_PRODUTO
+        ,PRODUTO.CD_ESPECIE
+        ,ITMVTO_ESTOQUE.CD_UNI_PRO
+        ,UNI_PRO.DS_UNIDADE
+        ,ESPECIE.DS_ESPECIE
+HAVING SUM( ITMVTO_ESTOQUE.QT_MOVIMENTACAO * DECODE( MVTO_ESTOQUE.TP_MVTO_ESTOQUE, 'P', 1, -1 )  )   &lt;&gt; 0
+ ORDER BY PRODUTO.CD_ESPECIE,2,3</SqlCommand><Type>Table</Type></Mat_med1><Equi_med Ref="9" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>Equi_med</Alias><Columns count="4" isList="true"><value>CD_ATI_MED,System.String</value><value>CD_AVISO_CIRURGIA,System.Double</value><value>CD_PRESTADOR,System.Double</value><value>MEDICO,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>Equi_med</Name><NameInSource>database</NameInSource><Parameters count="0" isList="true"/><SqlCommand>SELECT prestador_aviso.cd_prestador
+      ,ati_med.ds_ati_med ||': ' ||prestador.nm_prestador medico
+      ,prestador_aviso.cd_ati_med
+      ,aviso_cirurgia.cd_aviso_cirurgia
+  FROM prestador_aviso
+      ,prestador
+      ,ati_med
+      ,aviso_cirurgia
+  WHERE 1=1
+    AND prestador_aviso.cd_prestador = prestador.cd_prestador (+)
+    AND prestador_aviso.cd_ati_med   = ati_med.cd_ati_med
+    AND aviso_cirurgia.cd_aviso_cirurgia = prestador_aviso.cd_aviso_cirurgia
+--    AND aviso_cirurgia.cd_aviso_cirurgia  = 2900
+    AND aviso_cirurgia.cd_aviso_cirurgia = ('{CD_AVISO1}')
+ORDER BY prestador_aviso.cd_ati_med
+</SqlCommand><Type>Table</Type></Equi_med></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="1" isList="true"><value>,CD_AVISO1,Informe_x0020_o_x0020_Aviso_x003a_,,System.String,_x0030_,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><MetaTags count="1" isList="true"><value>reportId,_x0032_11</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="10" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="14" isList="true"><PageHeaderBand1 Ref="11" isKey="true" type="PageHeaderBand"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>Transparent</Brush><ClientRectangle>0,0.4,19,1.4</ClientRectangle><Components count="7" isList="true"><Text8 Ref="12" isKey="true" type="Text"><Border>None, Bottom;[0:0:0];1.0;Solid;False;4.0;[0:0:0]</Border><Brush>[255:255:255]</Brush><ClientRectangle>0,0.2,14.8,1.2</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>b46e0b5b9eaf4cc8a7bdb81eb73f074e</Guid><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="10"/><Parent isRef="11"/><Text>HOSPITAL SANTA RITA&#13;
+SOULMV - Sistema de Centro Cirúrgico e Obstétrico&#13;
+Gasto da Cirurgia </Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text8><Text16 Ref="13" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16,0.6,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="10"/><Parent isRef="11"/><Text>{Corpo_Cabecalho.DATA_ATUAL}</Text><TextBrush>Black</TextBrush><VertAlignment>Bottom</VertAlignment></Text16><Text10 Ref="14" isKey="true" type="Text"><Brush>[0:255:255:255]</Brush><ClientRectangle>16.4,1,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>68b3ae454d534418ab5a6e3ede693297</Guid><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="10"/><Parent isRef="11"/><Text>Página:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Bottom</VertAlignment></Text10><Text9 Ref="15" isKey="true" type="Text"><Brush>[0:255:255:255]</Brush><ClientRectangle>17.8,1,0.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="10"/><Parent isRef="11"/><Text>{PageNumber}</Text><TextBrush>[0:0:0]</TextBrush><Type>SystemVariables</Type><VertAlignment>Bottom</VertAlignment></Text9><Text53 Ref="16" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,1,0.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Margins>0,0,0,0</Margins><Name>Text53</Name><Page isRef="10"/><Parent isRef="11"/><Text>/</Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Bottom</VertAlignment></Text53><Text51 Ref="17" isKey="true" type="Text"><Brush>[0:255:255:255]</Brush><ClientRectangle>18.4,1,0.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>7ab964e957cc48c39661c8687d8d49c9</Guid><Margins>0,0,0,0</Margins><Name>Text51</Name><Page isRef="10"/><Parent isRef="11"/><Text>{TotalPageCount}</Text><TextBrush>[0:0:0]</TextBrush><Type>SystemVariables</Type><VertAlignment>Bottom</VertAlignment></Text51><Text54 Ref="18" isKey="true" type="Text"><Brush>[0:255:255:255]</Brush><ClientRectangle>15,0.6,1,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>a5ca63a0169644ae8af09e3993a122e9</Guid><Margins>0,0,0,0</Margins><Name>Text54</Name><Page isRef="10"/><Parent isRef="11"/><Text>Data:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Bottom</VertAlignment></Text54></Components><Conditions count="0" isList="true"/><Name>PageHeaderBand1</Name><Page isRef="10"/><Parent isRef="10"/></PageHeaderBand1><PageFooterBand1 Ref="19" isKey="true" type="PageFooterBand"><Brush>Transparent</Brush><ClientRectangle>0,31.44,19,1.4</ClientRectangle><Components count="2" isList="true"><Text50 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0.2,0.56,2.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>1ea3a46582764feb80261af913826a74</Guid><Margins>0,0,0,0</Margins><Name>Text50</Name><Page isRef="10"/><Parent isRef="19"/><Text>Anestesista</Text><TextBrush>[0:0:0]</TextBrush><VertAlignment>Center</VertAlignment></Text50><HorizontalLinePrimitive3 Ref="21" isKey="true" type="HorizontalLinePrimitive"><ClientRectangle>0,0.36,9.4,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="22" isKey="true" type="Cap"><Color>Black</Color></EndCap><Name>HorizontalLinePrimitive3</Name><Page isRef="10"/><Parent isRef="19"/><StartCap Ref="23" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive3></Components><Conditions count="0" isList="true"/><Name>PageFooterBand1</Name><Page isRef="10"/><Parent isRef="10"/><PrintOn>OnlyLastPage</PrintOn></PageFooterBand1><HeaderCorpo_Cabecalho Ref="24" isKey="true" type="HeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,2.6,19,2.4</ClientRectangle><Components count="19" isList="true"><Text1 Ref="25" isKey="true" type="Text"><Brush>[208:206:206]</Brush><ClientRectangle>0,0,19,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,12,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="10"/><Parent isRef="24"/><Text>Gasto da Cirurgia</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text1><Text11 Ref="26" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0.6,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>95a7267fbab94728b67c0318716e6c2c</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="10"/><Parent isRef="24"/><Text>Aviso Cirurgia:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text11><Text12 Ref="27" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,1,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>8fa4d261e18d4fe492de03c0a4015b91</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="10"/><Parent isRef="24"/><Text>Paciente:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text12><Text13 Ref="28" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,1.4,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>ab1666eef8aa497387abd36b8efd1f5f</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="10"/><Parent isRef="24"/><Text>Convênio:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text13><Text14 Ref="29" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>13.8,1,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>5faaf20baaed430aaa56e19bbf70e245</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="10"/><Parent isRef="24"/><Text>Leito:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text14><Text15 Ref="30" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,1.8,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>867bcf351d51495fb92c0024e102cd21</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="10"/><Parent isRef="24"/><Text>Data Cirurgia:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text15><Text38 Ref="31" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.8,1,10.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text38</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.NM_PACIENTE2}</Text><TextBrush>[0:0:0]</TextBrush></Text38><Text39 Ref="32" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.8,1.4,7.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text39</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.NM_CONVENIO}</Text><TextBrush>[0:0:0]</TextBrush></Text39><Text40 Ref="33" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.8,1.8,2.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text40</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.DATA}</Text><TextBrush>[0:0:0]</TextBrush></Text40><Text41 Ref="34" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>9.6,0.6,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>9f6d7ad4ed8246fbbd5d6def4ab603fa</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text41</Name><Page isRef="10"/><Parent isRef="24"/><Text>Sala:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text41><Text42 Ref="35" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>13,0.6,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>5317a2571f6b4ce88d76dfe8b2840541</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text42</Name><Page isRef="10"/><Parent isRef="24"/><Text>Atendimento:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text42><Text43 Ref="36" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>8.4,1.8,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>b06f8dcc4760433c9c08d30adc707f46</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text43</Name><Page isRef="10"/><Parent isRef="24"/><Text>Hora de Inicio:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text43><Text44 Ref="37" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>13,1.8,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10,Bold</Font><Guid>b10adfd38b5d450aa0eb97b5f2835939</Guid><HorAlignment>Right</HorAlignment><Margins>0,0,0,0</Margins><Name>Text44</Name><Page isRef="10"/><Parent isRef="24"/><Text>Hora de Término:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text44><Text46 Ref="38" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.8,0.6,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text46</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.CD_ATENDIMENTO}</Text><TextBrush>[0:0:0]</TextBrush></Text46><Text45 Ref="39" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>11.2,0.6,1.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text45</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.DS_RESUMIDA}</Text><TextBrush>[0:0:0]</TextBrush></Text45><Text47 Ref="40" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>11.2,1.8,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text47</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.DT_ENTRADA_SAL_CIR}</Text><TextBrush>Black</TextBrush></Text47><Text48 Ref="41" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.2,1.8,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text48</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.DT_SAIDA_SAL_CIR}</Text><TextBrush>Black</TextBrush></Text48><Text49 Ref="42" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.8,1,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text49</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.DS_LEITO}</Text><TextBrush>[0:0:0]</TextBrush></Text49><Text33 Ref="43" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.8,0.6,4.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text33</Name><Page isRef="10"/><Parent isRef="24"/><Text>{Corpo_Cabecalho.CD_AVISO_CIRURGIA}</Text><TextBrush>Black</TextBrush></Text33></Components><Conditions count="0" isList="true"/><Name>HeaderCorpo_Cabecalho</Name><Page isRef="10"/><Parent isRef="10"/></HeaderCorpo_Cabecalho><HeaderBand1 Ref="44" isKey="true" type="HeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,5.8,19,1</ClientRectangle><Components count="4" isList="true"><Text2 Ref="45" isKey="true" type="Text"><Brush>[208:206:206]</Brush><ClientRectangle>0,0,19,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,12,Bold</Font><Guid>956288ec0a104f7fb36301aad504883b</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="10"/><Parent isRef="44"/><Text>Cirurgia</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text2><Text25 Ref="46" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0.4,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>89079c7c85884d27bd7b52c95dcf3a33</Guid><Margins>0,0,0,0</Margins><Name>Text25</Name><Page isRef="10"/><Parent isRef="44"/><Text>Procedimento</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text25><Text26 Ref="47" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>10,0.4,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>498f16a183da4bdea700e12dd536cea6</Guid><Margins>0,0,0,0</Margins><Name>Text26</Name><Page isRef="10"/><Parent isRef="44"/><Text>Anestesia:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text26><Text29 Ref="48" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>11.8,0.4,6.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text29</Name><Page isRef="10"/><Parent isRef="44"/><Text>{Corpo_Cabecalho.DS_TIP_ANEST}</Text><TextBrush>Black</TextBrush><VertAlignment>Center</VertAlignment></Text29></Components><Conditions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>0b381870fca04c1fa6c03c8507eea86b</Guid><Name>HeaderBand1</Name><Page isRef="10"/><Parent isRef="10"/></HeaderBand1><DataBand1 Ref="49" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,7.6,19,0.4</ClientRectangle><Components count="1" isList="true"><Text27 Ref="50" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,11.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text27</Name><Page isRef="10"/><Parent isRef="49"/><Text>{Corpo_Cabecalho.DS_CIRURGIA}</Text><TextBrush>Black</TextBrush></Text27></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>Corpo_Cabecalho</DataSourceName><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>70b54718b8a742a1af3e2a4417276922</Guid><KeepDetails>None</KeepDetails><Name>DataBand1</Name><Page isRef="10"/><Parent isRef="10"/><Sort count="0" isList="true"/></DataBand1><HeaderBand2 Ref="51" isKey="true" type="HeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,8.8,19,0.6</ClientRectangle><Components count="1" isList="true"><Text3 Ref="52" isKey="true" type="Text"><Brush>[208:206:206]</Brush><ClientRectangle>0,0,19,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,12,Bold</Font><Guid>6f211a0621ae4366891056aeabf7c99f</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="10"/><Parent isRef="51"/><Text>Equipe Médica</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text3></Components><Conditions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>34b18ec3d44642c0bfe8a60cf253cfe7</Guid><Name>HeaderBand2</Name><Page isRef="10"/><Parent isRef="10"/></HeaderBand2><GroupHeaderBand1 Ref="53" isKey="true" type="GroupHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,10.2,19,0.8</ClientRectangle><Components count="1" isList="true"><Text32 Ref="54" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,16.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text32</Name><Page isRef="10"/><Parent isRef="53"/><Text>{Equi_med.MEDICO}</Text><TextBrush>Black</TextBrush><Type>DataColumn</Type></Text32></Components><Condition>{Equi_med.MEDICO}</Condition><Conditions count="0" isList="true"/><Name>GroupHeaderBand1</Name><Page isRef="10"/><Parent isRef="10"/></GroupHeaderBand1><DataBand2 Ref="55" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,11.8,19,0.2</ClientRectangle><Components count="0" isList="true"/><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>Corpo_Cabecalho</DataSourceName><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>4c8160269b8b4010b6991cee804d3d9f</Guid><KeepDetails>None</KeepDetails><Name>DataBand2</Name><Page isRef="10"/><Parent isRef="10"/><Sort count="0" isList="true"/></DataBand2><HeaderBand3 Ref="56" isKey="true" type="HeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,12.8,19,1.2</ClientRectangle><Components count="6" isList="true"><Text4 Ref="57" isKey="true" type="Text"><Brush>[208:206:206]</Brush><ClientRectangle>0,0,19,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,12,Bold</Font><Guid>7deab99b55804e5799165bb01444d0e8</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="10"/><Parent isRef="56"/><Text>Materiais e Equipamentos Utilizados na Cirurgia</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text4><Text5 Ref="58" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0.6,3.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="10"/><Parent isRef="56"/><Text>Materiais Utilizados</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text5><Text21 Ref="59" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>5.4,0.6,3.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>344d18e6427f46b0bbb271734f24ac60</Guid><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="10"/><Parent isRef="56"/><Text>Produto</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text21><Text22 Ref="60" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>15.2,0.6,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>929f3a9e40724faba69d768ebc594cde</Guid><Margins>0,0,0,0</Margins><Name>Text22</Name><Page isRef="10"/><Parent isRef="56"/><Text>Unidade</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text22><Text23 Ref="61" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>18.4,0.6,0.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>1db5069277c04eec99adf673536dcf77</Guid><Margins>0,0,0,0</Margins><Name>Text23</Name><Page isRef="10"/><Parent isRef="56"/><Text>Qt.</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text23><HorizontalLinePrimitive1 Ref="62" isKey="true" type="HorizontalLinePrimitive"><ClientRectangle>0,1,19,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="63" isKey="true" type="Cap"><Color>Black</Color></EndCap><Guid>3a3b4d6738994208be5cb39576af18b8</Guid><Name>HorizontalLinePrimitive1</Name><Page isRef="10"/><Parent isRef="56"/><StartCap Ref="64" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive1></Components><Conditions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>181d3caf971142fd8fd76f20ec0b314c</Guid><Name>HeaderBand3</Name><Page isRef="10"/><Parent isRef="10"/></HeaderBand3><DataCorpo_Cabecalho Ref="65" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,14.8,19,0.4</ClientRectangle><Components count="4" isList="true"><Text17 Ref="66" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,5.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text17</Name><Page isRef="10"/><Parent isRef="65"/><Text>{Mat_med1.DS_ESPECIE}</Text><TextBrush>Black</TextBrush><Type>DataColumn</Type></Text17><Text18 Ref="67" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>5.4,0,9.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="10"/><Parent isRef="65"/><Text>{Mat_med1.DS_PRODUTO}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>DataColumn</Type></Text18><Text19 Ref="68" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>15.2,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="10"/><Parent isRef="65"/><Text>{Mat_med1.DS_UNIDADE}</Text><TextBrush>Black</TextBrush><Type>DataColumn</Type></Text19><Text20 Ref="69" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.4,0,0.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="10"/><Parent isRef="65"/><Text>{Mat_med1.QT_CONSUMO1}</Text><TextBrush>Black</TextBrush><Type>DataColumn</Type></Text20></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>Mat_med1</DataSourceName><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><Name>DataCorpo_Cabecalho</Name><Page isRef="10"/><Parent isRef="10"/><Sort count="0" isList="true"/></DataCorpo_Cabecalho><HeaderBand6 Ref="70" isKey="true" type="HeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,16,19,0.8</ClientRectangle><Components count="3" isList="true"><Text52 Ref="71" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>15.2,0.2,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>0b74d96759824528be45ec620c7a0960</Guid><Margins>0,0,0,0</Margins><Name>Text52</Name><Page isRef="10"/><Parent isRef="70"/><Text>Qt. Utilizada</Text><TextBrush>[0:0:0]</TextBrush></Text52><Text31 Ref="72" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0.2,3.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>3927955c58d446b1864d59145a99f9dc</Guid><Margins>0,0,0,0</Margins><Name>Text31</Name><Page isRef="10"/><Parent isRef="70"/><Text>OPMEs Utilizados:</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text31><HorizontalLinePrimitive4 Ref="73" isKey="true" type="HorizontalLinePrimitive"><ClientRectangle>0,0.6,19,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="74" isKey="true" type="Cap"><Color>Black</Color></EndCap><Guid>49cd707b9f2241c7ab778495055f9724</Guid><Name>HorizontalLinePrimitive4</Name><Page isRef="10"/><Parent isRef="70"/><StartCap Ref="75" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive4></Components><Conditions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>4766abfd12a0419eab36869adf805b3f</Guid><Name>HeaderBand6</Name><Page isRef="10"/><Parent isRef="10"/></HeaderBand6><DataBand4 Ref="76" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,17.6,19,0.4</ClientRectangle><Components count="3" isList="true"><Text24 Ref="77" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0,5.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text24</Name><Page isRef="10"/><Parent isRef="76"/><Text>{Opme.DS_ESPECIE}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text24><DataOpme_QT_MOVIMENTACAO Ref="78" isKey="true" type="Text"><Brush>Transparent</Brush><CanGrow>True</CanGrow><ClientRectangle>15.2,0,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>DataOpme_QT_MOVIMENTACAO</Name><Page isRef="10"/><Parent isRef="76"/><Text>{Opme.QT_CONSUMO1}</Text><TextBrush>Black</TextBrush><TextOptions>HotkeyPrefix=None, LineLimit=False, RightToLeft=False, Trimming=None, WordWrap=True, Angle=0, FirstTabOffset=40, DistanceBetweenTabs=20,</TextOptions><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></DataOpme_QT_MOVIMENTACAO><Text55 Ref="79" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>5.6,0,9.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>d0a5207bda7d42cfbe188ba923df53b2</Guid><Margins>0,0,0,0</Margins><Name>Text55</Name><Page isRef="10"/><Parent isRef="76"/><Text>{Opme.DS_PRODUTO}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text55></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>Opme</DataSourceName><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>61796defa92749e7b6b2cc5b383705fb</Guid><KeepDetails>None</KeepDetails><Name>DataBand4</Name><Page isRef="10"/><Parent isRef="10"/><Sort count="0" isList="true"/></DataBand4><HeaderBand4 Ref="80" isKey="true" type="HeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,18.8,19,0.8</ClientRectangle><Components count="3" isList="true"><Text28 Ref="81" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0.2,4.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>7a2cc1f2725c4d9189e7cca5ec53caca</Guid><Margins>0,0,0,0</Margins><Name>Text28</Name><Page isRef="10"/><Parent isRef="80"/><Text>Equipamentos Utilizados</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text28><Text30 Ref="82" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>15.2,0.2,2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,10</Font><Guid>fbd7c8b0389746f39cf8ad731aa830df</Guid><Margins>0,0,0,0</Margins><Name>Text30</Name><Page isRef="10"/><Parent isRef="80"/><Text>Qt. Utilizada</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type></Text30><HorizontalLinePrimitive2 Ref="83" isKey="true" type="HorizontalLinePrimitive"><ClientRectangle>0,0.6,19,0.0254</ClientRectangle><Color>Black</Color><EndCap Ref="84" isKey="true" type="Cap"><Color>Black</Color></EndCap><Guid>e4d93e578d7743fabacb17854a224f72</Guid><Name>HorizontalLinePrimitive2</Name><Page isRef="10"/><Parent isRef="80"/><StartCap Ref="85" isKey="true" type="Cap"><Color>Black</Color></StartCap></HorizontalLinePrimitive2></Components><Conditions count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>09f04ecf33df490e8e312ae74207fc72</Guid><Name>HeaderBand4</Name><Page isRef="10"/><Parent isRef="10"/></HeaderBand4><DataBand3 Ref="86" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,20.4,19,0.4</ClientRectangle><Components count="2" isList="true"><Text7 Ref="87" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>15.2,0,1.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="10"/><Parent isRef="86"/><Text>{Equipamentos.QT_UTILIZADA}</Text><TextBrush>[0:0:0]</TextBrush></Text7><Text6 Ref="88" isKey="true" type="Text"><Brush>[255:255:255]</Brush><ClientRectangle>0,0,14.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="10"/><Parent isRef="86"/><Text>{Equipamentos.DS_APARELHO_EQUIPAMENTO}</Text><TextBrush>[0:0:0]</TextBrush></Text6></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>Equipamentos</DataSourceName><Filters count="0" isList="true"/><ForceSerializeToReport>True</ForceSerializeToReport><Guid>670cebf29ed34e7896b836829555351a</Guid><KeepDetails>None</KeepDetails><Name>DataBand3</Name><Page isRef="10"/><Parent isRef="10"/><Sort count="0" isList="true"/></DataBand3></Components><Conditions count="0" isList="true"/><Guid>594f80593f5040ff94ade6c7ce778e43</Guid><Margins>1,1,1,1</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Page isRef="10"/><PageHeight>29.7</PageHeight><PageWidth>21</PageWidth><Report isRef="0"/><Watermark Ref="89" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="90" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Relatório</ReportAlias><ReportChanged>03/04/2022 12:29:54 PM</ReportChanged><ReportCreated>01/15/2020 01:46:24 PM</ReportCreated><ReportFile>BC - Gasto de Sala</ReportFile><ReportGuid>aa6ab922506f4727bda8d424209f490b</ReportGuid><ReportName>Relatório</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2020.1.1 from 17 December 2019, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>

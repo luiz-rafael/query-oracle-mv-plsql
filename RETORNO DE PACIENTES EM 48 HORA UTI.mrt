@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><StiSerializer application="StiReport" type="Java" version="1.2"><CalculationMode>Interpretation</CalculationMode><Dictionary Ref="1" isKey="true" type="Dictionary"><BusinessObjects count="0" isList="true"/><Databases count="1" isList="true"><database Ref="2" isKey="true" type="Stimulsoft.Report.Dictionary.StiOracleDatabase"><Alias>database</Alias><ConnectionStringEncrypted>xbLbCf9O2IXbKGjtdMnr543gmy9LOKoZcnrtBOjEpX/eesml6EqiNUMTaMzHyfM/1dATgFtueozySqDA+S1h557GmetOfNjdaRWcdOHJrGPvstWl1EyZGXt7yExxELMOwjjLy+g4+sHMGIT4zvQl640gm6VfcKq8xm05qevJ6OP5LGkIXWuj7M9BaXB1Ebm72HgTAs1Vi3lrae1JTsQqO7CyE0zGOHFF2ygpxE3c9WOwZs3vXlFj3c9aoMTTDfa74BaZpWFsS7xpBqWAdCVqP5gwEyj/e9i84nihWEfEYqqwFhMJ/0/CgXkoIenxybkO9bL9KM4=</ConnectionStringEncrypted><Name>database</Name><Password>remweb</Password><User>remweb</User></database></Databases><DataSources count="1" isList="true"><FONTE Ref="3" isKey="true" type="Stimulsoft.Report.Dictionary.StiSqlSource"><Alias>FONTE</Alias><Columns count="11" isList="true"><value>CD_ATENDIMENTO,System.Double</value><value>CD_PACIENTE,System.Double</value><value>CD_UNID_INT,System.Double</value><value>DS_UNID_INT,System.String</value><value>DT_ENTRADA_UTI,System.String</value><value>DT_RETORNO_UTI,System.String</value><value>DT_SAIDA_UTI,System.String</value><value>LEITO_ENTRADA,System.String</value><value>LEITO_RETORNO,System.String</value><value>LEITO_SAIDA,System.String</value><value>NM_PACIENTE,System.String</value></Columns><CommandTimeout>30</CommandTimeout><DataName>database</DataName><Dictionary isRef="1"/><Name>FONTE</Name><NameInSource>database</NameInSource><Parameters count="2" isList="true"><value>DATA_FIM,_x007b_V_periodo_x002e_To_x007d_,4,0</value><value>DATA_INI,_x007b_V_periodo_x002e_From_x007d_,4,0</value></Parameters><SqlCommand>SELECT
+  resultado.cd_unid_int,
+  resultado.ds_unid_int,
+  resultado.cd_atendimento,
+  resultado.cd_paciente,
+  resultado.nm_paciente,
+  To_Char(resultado.DT_ENTRADA_UTI,'DD/MM/YYYY HH24:MM:SS') DT_ENTRADA_UTI,
+  To_Char(resultado.DT_SAIDA_UTI,'DD/MM/YYYY HH24:MM:SS') DT_SAIDA_UTI,
+  To_Char(resultado.DT_RETORNO_UTI,'DD/MM/YYYY HH24:MM:SS') DT_RETORNO_UTI,
+  la.ds_resumo leito_entrada,
+  lb.ds_resumo leito_retorno,
+  lc.ds_resumo leito_saida
+
+
+
+FROM mov_int a,mov_int b,mov_int c,leito la,leito lb,leito lc,
+  (
+  SELECT
+    cd_unid_int,
+    ds_unid_int,
+    cd_atendimento,
+    cd_paciente,
+    nm_paciente,
+    Min(dh_entrada_uti) DT_ENTRADA_UTI,
+    min(dh_saida_uti) DT_SAIDA_UTI,
+    Max(dh_entrada_uti) DT_RETORNO_UTI
+  FROM
+  (
+      SELECT
+      unid_int.cd_unid_int,
+      unid_int.ds_unid_int,
+      mov_int.cd_atendimento,
+      mov_int.cd_mov_int,
+      paciente.cd_paciente,
+      paciente.nm_paciente,
+      mov_int.cd_leito_anterior,
+      mov_int.cd_leito,
+      fnc_mv_recupera_data_hora(mov_int.dt_mov_int,mov_int.hr_mov_int) dh_entrada_uti,
+      NULL dh_saida_uti,
+      mov_int.tp_mov
+
+    FROM
+      mov_int,
+      leito,
+      tip_acom,
+      unid_int,
+      paciente,
+      atendime
+    WHERE
+          (mov_int.cd_leito_anterior IS NULL OR mov_int.cd_leito_anterior NOT IN (SELECT cd_leito FROM leito l,tip_acom t WHERE l.cd_tip_acom=t.cd_tip_acom AND t.tp_acomodacao='U'))
+      AND mov_int.cd_leito=leito.cd_leito
+      AND leito.cd_tip_acom = tip_acom.cd_tip_acom
+      AND tip_acom.tp_acomodacao='U'
+      AND leito.cd_unid_int = unid_int.cd_unid_int
+      AND mov_int.cd_atendimento=atendime.cd_atendimento
+      AND paciente.cd_paciente = atendime.cd_paciente
+      AND mov_int.tp_mov IN ('I','O')           
+
+  UNION ALL
+    --Contabiliza as datas de saida da UTI, cujo leito atual não seja da UTI
+    SELECT
+      unid_int.cd_unid_int,
+      unid_int.ds_unid_int,
+      mov_int.cd_atendimento,
+      mov_int.cd_mov_int,
+      paciente.cd_paciente,
+      paciente.nm_paciente,
+      mov_int.cd_leito_anterior,
+      mov_int.cd_leito,
+      null dh_entrada_uti,
+      fnc_mv_recupera_data_hora(mov_int.dt_mov_int,mov_int.hr_mov_int) dh_saida_uti,
+      mov_int.tp_mov
+
+    FROM
+      mov_int,
+      leito,
+      tip_acom,
+      unid_int,
+      paciente,
+      atendime
+    WHERE
+          mov_int.cd_leito_anterior = leito.cd_leito
+      AND mov_int.cd_leito NOT IN (SELECT cd_leito FROM leito l,tip_acom t WHERE l.cd_tip_acom=t.cd_tip_acom AND t.tp_acomodacao='U')
+      AND leito.cd_tip_acom = tip_acom.cd_tip_acom
+      AND tip_acom.tp_acomodacao='U'
+      AND leito.cd_unid_int = unid_int.cd_unid_int
+      AND mov_int.cd_atendimento=atendime.cd_atendimento
+      AND paciente.cd_paciente = atendime.cd_paciente
+      AND mov_int.tp_mov IN ('I','O')                  
+
+  )
+  GROUP BY
+    cd_unid_int,
+    ds_unid_int,
+    cd_paciente,
+    nm_paciente,
+    cd_atendimento
+
+  ORDER BY cd_unid_int
+  ) resultado
+
+WHERE
+      dt_entrada_uti &lt;&gt; dt_retorno_uti
+      AND (dt_retorno_uti - dt_saida_uti)*48 &lt; 48
+      AND dt_saida_uti IS NOT NULL
+      AND (dt_retorno_uti) BETWEEN @DATA_INI AND @DATA_FIM  
+      AND a.tp_mov IN ('I','O')
+      AND b.tp_mov IN ('I','O')
+      AND c.tp_mov IN ('I','O')
+      AND fnc_mv_recupera_data_hora(a.dt_mov_int,a.hr_mov_int) = resultado.dt_entrada_uti
+      AND fnc_mv_recupera_data_hora(b.dt_mov_int,b.hr_mov_int) = resultado.dt_retorno_uti
+      AND fnc_mv_recupera_data_hora(c.dt_mov_int,c.hr_mov_int) = resultado.dt_saida_uti
+      AND la.cd_leito=a.cd_leito
+      AND lb.cd_leito=b.cd_leito
+      AND lc.cd_leito=c.cd_leito
+AND {V_VAR}</SqlCommand><Type>Table</Type></FONTE></DataSources><Relations count="0" isList="true"/><Report isRef="0"/><Resources count="0" isList="true"/><Variables count="2" isList="true"><value>,V_VAR,V_VAR,,System.String,_x0031__x003d_1,True,False,False,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_DateTimeType_x003e_DateAndTime_x003c__x002f_DateTimeType_x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value><value>,V_periodo,Período_x003a_,,Stimulsoft.Report.DateTimeRange,DateTime_x002c_03_x002f_16_x002f_2022_x0020_04_x003a_18_x003a_56_x0020_PM_x002c_03_x002f_16_x002f_2022_x0020_04_x003a_18_x003a_56_x0020_PM,False,False,True,False,_x003c__x003f_xml_x0020_version_x003d__x0022_1_x002e_0_x0022__x0020_encoding_x003d__x0022_UTF_x002d_8_x0022__x0020_standalone_x003d__x0022_no_x0022__x003f__x003e__x003c_StiSerializer_x0020_application_x003d__x0022_State_x0022__x0020_type_x003d__x0022_Java_x0022__x0020_version_x003d__x0022_1_x002e_2_x0022__x003e__x003c_BindingValue_x003e_False_x003c__x002f_BindingValue_x003e__x003c_BindingValuesColumn_x002f__x003e__x003c_Keys_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_Values_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c_ValuesBinding_x0020_count_x003d__x0022_0_x0022__x0020_isList_x003d__x0022_true_x0022__x002f__x003e__x003c__x002f_StiSerializer_x003e_,,False,FromVariable</value></Variables></Dictionary><EngineVersion>EngineV2</EngineVersion><GlobalizationStrings count="0" isList="true"/><IsSubmit>False</IsSubmit><JsonReport>False</JsonReport><MetaTags count="1" isList="true"><value>reportId,_x0032_64</value></MetaTags><Pages count="1" isList="true"><Page1 Ref="4" isKey="true" type="Page"><Border>None;Black;2.0;Solid;False;4.0;Black</Border><Brush>Transparent</Brush><Components count="3" isList="true"><ReportTitleBand1 Ref="5" isKey="true" type="ReportTitleBand"><Brush>Transparent</Brush><ClientRectangle>0,0.4,27.7,1.2</ClientRectangle><Components count="1" isList="true"><Text1 Ref="6" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>5.6,0.4,18,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,20</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text1</Name><Page isRef="4"/><Parent isRef="5"/><Text>RETORNO A UTI 48 HORAS - HRS </Text><TextBrush>Black</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text1></Components><Conditions count="0" isList="true"/><Name>ReportTitleBand1</Name><Page isRef="4"/><Parent isRef="4"/></ReportTitleBand1><GroupHeaderBand1 Ref="7" isKey="true" type="GroupHeaderBand"><Brush>Transparent</Brush><ClientRectangle>0,2.4,27.7,0.6</ClientRectangle><Components count="10" isList="true"><Text2 Ref="8" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>0,0,1.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text2</Name><Page isRef="4"/><Parent isRef="7"/><Text>ATEND.</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text2><Text3 Ref="9" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>1.4,0,1.4,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>ffcc1b5de1f0449bb906294742147d65</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text3</Name><Page isRef="4"/><Parent isRef="7"/><Text>PRONT.</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text3><Text4 Ref="10" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>10,0,3.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>bdead45017a14c1fba00daed610b6a4c</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text4</Name><Page isRef="4"/><Parent isRef="7"/><Text>UNIDADE INTERNAÇÃO</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text4><Text5 Ref="11" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>13.8,0,2.6,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>d2afc38d8fae473db58b4e490cbaea40</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text5</Name><Page isRef="4"/><Parent isRef="7"/><Text>ENTRADA UTI</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text5><Text6 Ref="12" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>16.4,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>53764401f05947d689ad1bbcc97cac21</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text6</Name><Page isRef="4"/><Parent isRef="7"/><Text>ENTRADA</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text6><Text8 Ref="13" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>21.2,0,1.8,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>e265cc47a2e84f56a85b3e453b581629</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text8</Name><Page isRef="4"/><Parent isRef="7"/><Text>SAÍDA</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text8><Text11 Ref="14" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>2.8,0,7.2,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>e6a35ced3f5b4e6aa8f19ebaf53d87ad</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text11</Name><Page isRef="4"/><Parent isRef="7"/><Text>PACIENTE</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text11><Text10 Ref="15" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>26,0,1.7,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>ba04fdc1e03749a1a3d0dc114e76107a</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text10</Name><Page isRef="4"/><Parent isRef="7"/><Text>RETORNO</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text10><Text9 Ref="16" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>23,0,3,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>0216a904bc4d4937b5e2b1b45fdc4d31</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text9</Name><Page isRef="4"/><Parent isRef="7"/><Text>RETORNO UTI</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text9><Text7 Ref="17" isKey="true" type="Text"><Brush>[191:191:191]</Brush><ClientRectangle>18.2,0,3,0.6</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8,Bold</Font><Guid>b1b5d98f20cf4c75b09198ffe5d32b64</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text7</Name><Page isRef="4"/><Parent isRef="7"/><Text>SAÍDA</Text><TextBrush>[0:0:0]</TextBrush><Type>Expression</Type><VertAlignment>Center</VertAlignment></Text7></Components><Conditions count="0" isList="true"/><Name>GroupHeaderBand1</Name><Page isRef="4"/><Parent isRef="4"/></GroupHeaderBand1><DataBand1 Ref="18" isKey="true" type="DataBand"><Brush>Transparent</Brush><ClientRectangle>0,3.8,27.7,0.4</ClientRectangle><Components count="10" isList="true"><Text12 Ref="19" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>0,0,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>394f0ee506d64a77915c4aa058a87fd1</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text12</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.CD_ATENDIMENTO}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text12><Text13 Ref="20" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>1.4,0,1.4,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>05ce2750fdca4f38a5fa6b9765a5f228</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text13</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.CD_PACIENTE}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text13><Text14 Ref="21" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>10,0,3.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>25acbc5a5314436a893d8425eccaf993</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text14</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.DS_UNID_INT}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text14><Text15 Ref="22" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>13.8,0,2.6,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>ba3cae538116431fa6963a24c739b033</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text15</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.DT_ENTRADA_UTI}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text15><Text16 Ref="23" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>16.4,0,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>bbf5fa5d4f5848fabe2845831da699cc</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text16</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.LEITO_ENTRADA}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text16><Text18 Ref="24" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>21.2,0,1.8,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>851ac4f1d03d4e679290bc4d1d2fac35</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text18</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.LEITO_SAIDA}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text18><Text21 Ref="25" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>2.8,0,7.2,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>7cb9755be4c44940bfbd5000ceecdfb5</Guid><Margins>0,0,0,0</Margins><Name>Text21</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.NM_PACIENTE}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text21><Text20 Ref="26" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>26,0,1.7,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>e73ab0fc413746068cc45baf8059169a</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text20</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.LEITO_RETORNO}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text20><Text19 Ref="27" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>23,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>88a0ad0b1c804ff5b9f66d1f1f1e6812</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text19</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.DT_RETORNO_UTI}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text19><Text17 Ref="28" isKey="true" type="Text"><Brush>Transparent</Brush><ClientRectangle>18.2,0,3,0.4</ClientRectangle><Conditions count="0" isList="true"/><Font>Arial,8</Font><Guid>a0efb4538a894cf9b5af12a56cd72966</Guid><HorAlignment>Center</HorAlignment><Margins>0,0,0,0</Margins><Name>Text17</Name><Page isRef="4"/><Parent isRef="18"/><Text>{FONTE.DT_SAIDA_UTI}</Text><TextBrush>[0:0:0]</TextBrush><Type>DataColumn</Type><VertAlignment>Center</VertAlignment></Text17></Components><Conditions count="0" isList="true"/><DataRelationName isNull="true"/><DataSourceName>FONTE</DataSourceName><Filters count="0" isList="true"/><KeepDetails>None</KeepDetails><Name>DataBand1</Name><Page isRef="4"/><Parent isRef="4"/><Sort count="0" isList="true"/></DataBand1></Components><Conditions count="0" isList="true"/><Guid>a56de59248e843ebba2934560dfffaa7</Guid><Margins>1,1,0,1</Margins><MirrorMargins>False</MirrorMargins><Name>Page1</Name><Orientation>Landscape</Orientation><Page isRef="4"/><PageHeight>21</PageHeight><PageWidth>29.7</PageWidth><Report isRef="0"/><Watermark Ref="29" isKey="true" type="Stimulsoft.Report.Components.StiWatermark"><EnabledExpression/><Font>Arial,100</Font><ImageHyperlink/><TextBrush>[50:0:0:0]</TextBrush></Watermark></Page1></Pages><PrinterSettings Ref="30" isKey="true" type="Stimulsoft.Report.Print.StiPrinterSettings"/><ReferencedAssemblies count="8" isList="true"><value>System.Dll</value><value>System.Drawing.Dll</value><value>System.Windows.Forms.Dll</value><value>System.Data.Dll</value><value>System.Xml.Dll</value><value>Stimulsoft.Controls.Dll</value><value>Stimulsoft.Base.Dll</value><value>Stimulsoft.Report.Dll</value></ReferencedAssemblies><RefreshTime>0</RefreshTime><ReportAlias>Relatório</ReportAlias><ReportChanged>03/16/2022 04:50:10 PM</ReportChanged><ReportCreated>03/16/2022 04:04:22 PM</ReportCreated><ReportFile>RETORNO DE PACIENTES EM 48 HORA UTI</ReportFile><ReportGuid>5dd75378c05c4d34b1654ac48a4a1e9e</ReportGuid><ReportName>Relatório</ReportName><ReportResources count="0" isList="true"/><ReportUnit>Centimeters</ReportUnit><ReportVersion>2020.2.3 from 17 October 2019, Java</ReportVersion><RetrieveOnlyUsedData>True</RetrieveOnlyUsedData><Script>using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Data;
+using Stimulsoft.Controls;
+using Stimulsoft.Base.Drawing;
+using Stimulsoft.Report;
+using Stimulsoft.Report.Dialogs;
+using Stimulsoft.Report.Components;
+
+namespace Reports
+{
+    public class Report : Stimulsoft.Report.StiReport
+    {
+        
+        public Report()
+        {
+            this.InitializeComponent();
+        }
+
+        #region StiReport Designer generated code - do not modify
+        #endregion StiReport Designer generated code - do not modify
+    }
+}
+</Script><ScriptLanguage>CSharp</ScriptLanguage><Styles count="0" isList="true"/></StiSerializer>
